@@ -12,3 +12,8 @@ PHP7
 git clone https://github.com/admson/
 php -f main.php
 ```
+
+## Настройка
+Все настройки хранятся в `config.js`.
+Следуйте комментариям в файле, чтобы настроить
+подключение к БД и ресурсам Telegram
