@@ -8,5 +8,7 @@
 PHP7
 
 ## Установка
+```
 git clone https://github.com/admson/
-
+php -f main.php
+```
