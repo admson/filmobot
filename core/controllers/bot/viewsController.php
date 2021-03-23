@@ -47,10 +47,6 @@
             $main_keyboard = [];
             array_push($main_keyboard, array(array('text'=>$this->lang['startmenu'])));
 
-            if (in_array($this->chat_id,$this->admins)) {
-                array_push($main_keyboard, array(array('text'=>$this->lang['adminmenu'])));
-            }
-
             $keyboard = new \TelegramBot\Api\Types\ReplyKeyboardMarkup($main_keyboard,false, true);
             $this->db->update("UPDATE accounts SET menu='main' WHERE chat_id='$this->chat_id'");
             $answer = $this->lang['welcome_answer'];
