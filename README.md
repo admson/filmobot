@@ -9,7 +9,7 @@ PHP7
 
 ## Установка
 ```
-git clone https://github.com/admson/
+git clone https://github.com/admson/filmobot
 php -f main.php
 ```
 
