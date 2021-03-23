@@ -44,7 +44,7 @@
     }
 
     include 'core/config.php'; // Основной конфиг
-    include 'core/lang.php'; // Файл языков
+    include 'lang/'.LANG.'.php';
 
 	//Подключаем Базу Данных
 	$db = new DB();

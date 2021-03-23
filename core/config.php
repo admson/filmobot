@@ -8,6 +8,7 @@
 
     // Настройки бота
     define('BOT_TOKEN','1718673256:AAGVR-0ufHzBfz6bxkztWDg-p2Sy21YhcmQ'); // API Token бота
+    define('LANG','ru'); // Стандартный язык
 
     $admins = [
         // chat_id,

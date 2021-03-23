@@ -45,17 +45,15 @@
         public function menuMain() {
             
             $main_keyboard = [];
-            $lng = getLang($this->user_data[0]['lang']);
-
-            array_push($main_keyboard, array(array('text'=>$this->lang[$lng]['startmenu'])));
+            array_push($main_keyboard, array(array('text'=>$this->lang['startmenu'])));
 
             if (in_array($this->chat_id,$this->admins)) {
-                array_push($main_keyboard, array(array('text'=>$this->lang[$lng]['adminmenu'])));
+                array_push($main_keyboard, array(array('text'=>$this->lang['adminmenu'])));
             }
 
             $keyboard = new \TelegramBot\Api\Types\ReplyKeyboardMarkup($main_keyboard,false, true);
             $this->db->update("UPDATE accounts SET menu='main' WHERE chat_id='$this->chat_id'");
-            $answer = $this->lang[$lng]['welcome_answer'];
+            $answer = $this->lang['welcome_answer'];
 
             if (isset($this->msg_id) && $this->msg_id > 0) {
                 editMessage($this->bot,$this->chat_id,$this->msg_id,$answer,$keyboard);
@@ -67,17 +65,14 @@
 
         // view под админку
         public function menuAdmin() {
-
-            $lng = getLang($this->user_data[0]['lang']);
-
             $main_keyboard = [];
-            array_push($main_keyboard, array(array('text'=>$this->lang[$lng]['add_film']),array('text'=>$this->lang[$lng]['del_film'])));
-            array_push($main_keyboard, array(array('text'=>$this->lang[$lng]['add_card_film'])));
+            array_push($main_keyboard, array(array('text'=>$this->lang['add_film']),array('text'=>$this->lang['del_film'])));
+            array_push($main_keyboard, array(array('text'=>$this->lang['add_card_film'])));
             array_push($main_keyboard, array(array('text'=>"✉️ Рассылка в боте")));
 
             $keyboard = new \TelegramBot\Api\Types\ReplyKeyboardMarkup($main_keyboard,false, true);
             $this->db->update("UPDATE accounts SET menu='main' WHERE chat_id='$this->chat_id'");
-            $answer = $this->lang[$lng]['admin_answer'];
+            $answer = $this->lang['admin_answer'];
 
             if (isset($this->msg_id) && $this->msg_id > 0) {
                 editMessage($this->bot,$this->chat_id,$this->msg_id,$answer,$keyboard);
@@ -86,28 +81,13 @@
             }
         }
 
-        public function sendContact() {
-
-            $main_keyboard = [];
-
-            $lng = getLang($this->user_data[0]['lang']);
-
-            array_push($main_keyboard, array(array('text'=>$this->lang[$lng]['send_contact'], 'request_contact' => true)));
-
-            $keyboard = new \TelegramBot\Api\Types\ReplyKeyboardMarkup($main_keyboard,false, true);
-            $this->db->update("UPDATE accounts SET menu='send_contact' WHERE chat_id='$this->chat_id'");
-            $answer = $this->lang[$lng]['send_contact_answer'];
-
-            sendMessage($this->bot,$this->chat_id,$answer,$keyboard );
-        }
-
         public function setLang($lng) {
 
             $main_array = [];
             array_push($main_array, array(array('text'=>"🇷🇺 Русский",'callback_data' => 'set_lang.ru'),array('text'=>"🇺🇿 Uzbekistan",'callback_data' => 'set_lang.en')));
             $keyboard = new \TelegramBot\Api\Types\Inline\InlineKeyboardMarkup($main_array);
             $this->db->update("UPDATE accounts SET menu='set_lang' WHERE chat_id='$this->chat_id'");
-            $answer = $this->lang[$lng]['set_lang_answer'];
+            $answer = $this->lang['set_lang_answer'];
 
             sendMessage($this->bot,$this->chat_id,$answer,$keyboard );
         }
@@ -350,9 +330,9 @@
 
             if (isset($this->msg_id) && $this->msg_id > 0) {
                 $this->bot->deleteMessage($this->chat_id,$this->msg_id);
-                sendMessage($this->bot,$this->chat_id,$this->lang[$lng]['tarif_list'],$keyboard );
+                sendMessage($this->bot,$this->chat_id,$this->lang['tarif_list'],$keyboard );
             }else{
-                sendMessage($this->bot,$this->chat_id,$this->lang[$lng]['tarif_list'],$keyboard );
+                sendMessage($this->bot,$this->chat_id,$this->lang['tarif_list'],$keyboard );
             }
         }
         

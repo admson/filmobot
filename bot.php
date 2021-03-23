@@ -35,7 +35,7 @@
         // Авторизация пользователя
         $user = new authController($chat_id, $username, $firstname, $last_name);
         $user_data = $user->authUser();
-        $db->update("UPDATE accounts SET banned=0,lang='ru' WHERE chat_id='$chat_id'");
+        $db->update("UPDATE accounts SET banned=0,lang='".LANG."' WHERE chat_id='$chat_id'");
         $user = new authController($chat_id, $username, $firstname, $last_name);
         $user_data = $user->authUser();
         // ViewContoller
