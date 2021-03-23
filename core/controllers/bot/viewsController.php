@@ -70,7 +70,7 @@
             array_push($main_keyboard, array(array('text'=>$this->lang['add_card_film'])));
 
             $keyboard = new \TelegramBot\Api\Types\ReplyKeyboardMarkup($main_keyboard,false, true);
-            $this->db->update("UPDATE accounts SET menu='main' WHERE chat_id='$this->chat_id'");
+            $this->db->update("UPDATE accounts SET menu='admin' WHERE chat_id='$this->chat_id'");
             $answer = $this->lang['admin_answer'];
 
             if (isset($this->msg_id) && $this->msg_id > 0) {

@@ -28,7 +28,6 @@
         }else{
             // status 2 это если человек заблокирован
             if ($is_account[0]['status'] == 2) {
-//            sendMessage($bot, $chat_id, "Аккаунт заблокирован!");
                 exit();
             }
         }
@@ -41,7 +40,11 @@
         // ViewContoller
         $view = new viewController($bot, $user_data, false, $db, $dbconnection, $lang);
 
-        $view->menuMain(); // Показываем главное меню
+        if (in_array($this->chat_id,$this->admins)) {
+            $view->menuAdmin();
+        }else{
+            $view->menuMain();
+        }
     });
 
     // Обработчик для обновлений
