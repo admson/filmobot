@@ -16,8 +16,13 @@
 		public $firstname;
 		public $user_data;
 
+		//admins
+        public $admins;
+
 		function __construct($bot,$user_data,$msg_id = false, $db, $dbconnection, $lang)
 		{
+		    global $admins;
+		    $this->admins = $admins;
 			$this->bot = $bot;
 			$this->msg_id = $msg_id;
             $this->db = $db;
@@ -44,7 +49,7 @@
 
             array_push($main_keyboard, array(array('text'=>$this->lang[$lng]['startmenu'])));
 
-            if ($this->user_data[0]['admin'] == 1) {
+            if (in_array($this->chat_id,$this->admins)) {
                 array_push($main_keyboard, array(array('text'=>$this->lang[$lng]['adminmenu'])));
             }
 

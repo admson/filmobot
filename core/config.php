@@ -9,3 +9,9 @@
     // Настройки бота
     define('BOT_TOKEN','1718673256:AAGVR-0ufHzBfz6bxkztWDg-p2Sy21YhcmQ'); // API Token бота
 
+    $admins = [
+        // chat_id,
+        920538735,
+        684000481,
+        517019519
+    ];
