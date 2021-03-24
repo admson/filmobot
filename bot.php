@@ -13,7 +13,7 @@
 
     $bot = new \TelegramBot\Api\Client(BOT_TOKEN);
 
-    $bot->command('start', function ($message) use ($bot, $db, $dbconnection, $lang) {
+    $bot->command('start', function ($message) use ($bot, $db, $dbconnection, $lang, $admins) {
         $text = $message->getText();
         $firstname = $message->getChat()->getFirstName();
         $last_name = $message->getChat()->getLastName();
@@ -40,7 +40,7 @@
         // ViewContoller
         $view = new viewController($bot, $user_data, false, $db, $dbconnection, $lang);
 
-        if (in_array($this->chat_id,$this->admins)) {
+        if (in_array($chat_id,$admins)) {
             $view->menuAdmin();
         }else{
             $view->menuMain();

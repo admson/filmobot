@@ -71,6 +71,7 @@ class messageController
 
     public function controller()
     {
+        global $admins;
         // Стандартные меню в боте
         $main_menu = [
             '⚙ Админ меню' => 'menuAdmin',
@@ -78,14 +79,14 @@ class messageController
         ];
         // Админ меню в боте
         $admin_menu = [
-
+            $this->lang['test'] => "menuQuiz",
         ];
 
         if (isset($main_menu[$this->text])) {
             call_user_func(array($this->view, $main_menu[$this->text]));
             exit();
         }
-        if ($this->user_data[0]['admin'] == 1) {
+        if (in_array($this->chat_id,$admins)) {
             if (isset($admin_menu[$this->text])) {
                 call_user_func(array($this->view, $admin_menu[$this->text]));
                 exit();

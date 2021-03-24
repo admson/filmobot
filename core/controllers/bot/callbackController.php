@@ -74,6 +74,10 @@
             if ($data[0] == "vieww" && isset($data[1]) && isset($data[2])) {
                 call_user_func(array($this->vieww, $data[1]), $data[2]);
             }
+            if ($data[0] == "mainadmin") {
+                if (isset($this->msg_id)) $this->bot->deleteMessage($this->chat_id,$this->msg_id);
+                $this->view->menuAdmin();
+            }
 
         }
 	}

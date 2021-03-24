@@ -2,12 +2,12 @@
 
 	// Настройки подключения к DB MySQL
 	define('DB_SERVER','localhost'); // Сервер БД
-	define('DB_NAME','filmbot'); // Название БД
-	define('DB_PASSWORD','3G9d1D7n'); // Пароль БД
-	define('DB_USERNAME','filmbot'); // Пользователь БД
+	define('DB_NAME',''); // Название БД
+	define('DB_PASSWORD',''); // Пароль БД
+	define('DB_USERNAME',''); // Пользователь БД
 
     // Настройки бота
-    define('BOT_TOKEN','1718673256:AAGVR-0ufHzBfz6bxkztWDg-p2Sy21YhcmQ'); // API Token бота
+    define('BOT_TOKEN',''); // API Token бота
     define('LANG','ru'); // Стандартный язык
 
     $admins = [
