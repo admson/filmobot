@@ -19,6 +19,16 @@
 		//admins
         public $admins;
 
+        // breadcrumbs
+        public $breadcrumbs = [
+                "main" => "menuMain",
+                "admin" => "menuAdmin",
+                "quiz" => "menuQuiz",
+                "quiz1" => "menuQuiz1",
+                "quiz2" => "menuQuiz2",
+                "quiz3" => "menuQuiz3",
+            ];
+
 		function __construct($bot,$user_data,$msg_id = false, $db, $dbconnection, $lang)
 		{
 		    global $admins;
@@ -41,14 +51,31 @@
             $this->user_data = $data;
         }
 
+        public function getBreadCrumps($menu) {
+            $bot_username = $this->bot->getMe()->getUsername();
+            $breads = explode("/",$menu);
+            $output = "";
+            foreach ($breads as $bread) {
+                $hash = md5($bread);
+                $output.= "/<a href='https://t.me/".$bot_username."?start=".$hash."'>".$bread."</a>";
+            }
+            return $output;
+        }
+
+        public function updateState($menu,$data = false) {
+		    $state_hash = md5($menu);
+		    $new_state = $this->db->update("INSERT INTO dialogs(hash,chat_id,menu) VALUES('$state_hash','".$this->chat_id."','$menu')");
+        }
+
         // View главного меню
         public function menuMain() {
-            
+		    $menu = "main";
+            self::updateState($menu);
             $main_keyboard = [];
             array_push($main_keyboard, array(array('text'=>$this->lang['startmenu'])));
 
             $keyboard = new \TelegramBot\Api\Types\ReplyKeyboardMarkup($main_keyboard,false, true);
-            $this->db->update("UPDATE accounts SET menu='main' WHERE chat_id='$this->chat_id'");
+            $this->db->update("UPDATE accounts SET menu='$menu' WHERE chat_id='$this->chat_id'");
             $answer = $this->lang['welcome_answer'];
 
             if (isset($this->msg_id) && $this->msg_id > 0) {
@@ -61,12 +88,14 @@
 
         // view под админку
         public function menuAdmin() {
+            $menu = "admin";
+            self::updateState($menu);
             $main_keyboard = [];
             array_push($main_keyboard, array(array('text'=>$this->lang['add_film']),array('text'=>$this->lang['del_film'])));
             array_push($main_keyboard, array(array('text'=>$this->lang['test'])));
 
             $keyboard = new \TelegramBot\Api\Types\ReplyKeyboardMarkup($main_keyboard,false, true);
-            $this->db->update("UPDATE accounts SET menu='admin' WHERE chat_id='$this->chat_id'");
+            $this->db->update("UPDATE accounts SET menu='$menu' WHERE chat_id='$this->chat_id'");
             $answer = $this->lang['admin_answer'];
 
             if (isset($this->msg_id) && $this->msg_id > 0) {
@@ -77,6 +106,8 @@
         }
 
         public function menuQuiz() {
+            $menu = "admin/quiz";
+            self::updateState($menu);
             $main_array = [];
 
             array_push($main_array, array(array('text'=> "Ответ 1",'callback_data' => "view.menuQuiz1")));
@@ -88,7 +119,8 @@
 
             $keyboard = new \TelegramBot\Api\Types\Inline\InlineKeyboardMarkup($main_array);
             $this->db->update("UPDATE accounts SET menu='quiz' WHERE chat_id='$this->chat_id'");
-            $answer = "<i>/admin/quiz</i>\n\nВыберите ответ";
+            $breadcrumps = self::getBreadCrumps($menu);
+            $answer = "<i>$breadcrumps</i>\n\nВыберите ответ";
 
             if (isset($this->msg_id) && $this->msg_id > 0) {
                 editMessage($this->bot,$this->chat_id,$this->msg_id,$answer,$keyboard);
@@ -98,15 +130,16 @@
         }
 
         public function menuQuiz1() {
+            $menu = "admin/quiz/quiz1";
+            self::updateState($menu);
             $main_array = [];
-
-            array_push($main_array, array(array('text'=> "URL",'url' => "https://t.me/")));
 
             array_push($main_array, array(array('text'=> $this->lang['back'],'callback_data' => "view.menuQuiz")));
 
             $keyboard = new \TelegramBot\Api\Types\Inline\InlineKeyboardMarkup($main_array);
-            $this->db->update("UPDATE accounts SET menu='quiz1' WHERE chat_id='$this->chat_id'");
-            $answer = "<i>/admin/quiz/quiz1</i>\n\nВыберите ответ";
+            $this->db->update("UPDATE accounts SET menu='$menu' WHERE chat_id='$this->chat_id'");
+            $breadcrumps = self::getBreadCrumps($menu);
+            $answer = "<i>$breadcrumps</i>\n\nВыберите ответ";
 
             if (isset($this->msg_id) && $this->msg_id > 0) {
                 editMessage($this->bot,$this->chat_id,$this->msg_id,$answer,$keyboard);
@@ -116,15 +149,16 @@
         }
 
         public function menuQuiz2() {
+            $menu = "dmin/quiz/quiz2";
+            self::updateState($menu);
             $main_array = [];
-
-            array_push($main_array, array(array('text'=> "URL",'url' => "https://t.me/")));
 
             array_push($main_array, array(array('text'=> $this->lang['back'],'callback_data' => "view.menuQuiz")));
 
             $keyboard = new \TelegramBot\Api\Types\Inline\InlineKeyboardMarkup($main_array);
-            $this->db->update("UPDATE accounts SET menu='quiz2' WHERE chat_id='$this->chat_id'");
-            $answer = "<i>/admin/quiz/quiz2</i>\n\nВыберите ответ";
+            $this->db->update("UPDATE accounts SET menu='$menu' WHERE chat_id='$this->chat_id'");
+            $breadcrumps = self::getBreadCrumps($menu);
+            $answer = "<i>$breadcrumps</i>\n\nВыберите ответ";
 
             if (isset($this->msg_id) && $this->msg_id > 0) {
                 editMessage($this->bot,$this->chat_id,$this->msg_id,$answer,$keyboard);
@@ -134,6 +168,8 @@
         }
 
         public function menuQuiz3() {
+            $menu = "dmin/quiz/quiz3";
+            self::updateState($menu);
             $main_array = [];
 
             array_push($main_array, array(array('text'=> "URL",'url' => "https://t.me/")));
@@ -141,8 +177,9 @@
             array_push($main_array, array(array('text'=> $this->lang['back'],'callback_data' => "view.menuQuiz")));
 
             $keyboard = new \TelegramBot\Api\Types\Inline\InlineKeyboardMarkup($main_array);
-            $this->db->update("UPDATE accounts SET menu='quiz3' WHERE chat_id='$this->chat_id'");
-            $answer = "<i>/admin/quiz/quiz3</i>\n\nВыберите ответ";
+            $this->db->update("UPDATE accounts SET menu='$menu' WHERE chat_id='$this->chat_id'");
+            $breadcrumps = self::getBreadCrumps($menu);
+            $answer = "<i>$breadcrumps</i>\n\nВыберите ответ";
 
             if (isset($this->msg_id) && $this->msg_id > 0) {
                 editMessage($this->bot,$this->chat_id,$this->msg_id,$answer,$keyboard);
@@ -150,6 +187,6 @@
                 sendMessage($this->bot,$this->chat_id,$answer,$keyboard );
             }
         }
-        
+
 	}
 

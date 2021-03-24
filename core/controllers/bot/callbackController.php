@@ -64,7 +64,6 @@
 
 		public function controller()
         {
-            $lng = getLang($this->user_data[0]['lang']);
             $query = $this->Callback->getData();
             $data = explode(".", $query);
 

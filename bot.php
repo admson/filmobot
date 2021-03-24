@@ -19,7 +19,6 @@
         $last_name = $message->getChat()->getLastName();
         $username = $message->getChat()->getUsername();
         $chat_id = $message->getChat()->getId();
-        $lng = getLang($message->getFrom()->getLanguageCode()); // Получаем язык
 
         // Проверка существует ли аккаунт
         $is_account = $db->select("SELECT * FROM accounts WHERE chat_id='$chat_id'");
@@ -40,10 +39,23 @@
         // ViewContoller
         $view = new viewController($bot, $user_data, false, $db, $dbconnection, $lang);
 
-        if (in_array($chat_id,$admins)) {
+        $msg_hash = explode(" ", $text);
+        #Check referral
+        if (isset($msg_hash[1])) {
+            $routes = $view->breadcrumbs;
+            foreach ($routes as $key => $rout) {
+                if (md5($key) == $msg_hash[1]) {
+                    call_user_func(array($view, $rout));
+                }
+            }
+        }
+
+        if (in_array($chat_id,$admins) && !isset($msg_hash[1])) {
             $view->menuAdmin();
         }else{
-            $view->menuMain();
+            if (!isset($msg_hash[1])) {
+                $view->menuMain();
+            }
         }
     });
 

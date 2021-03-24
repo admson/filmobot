@@ -54,7 +54,6 @@ class messageController
         $this->username = $Message->getChat()->getUsername();
         $this->chat_id = $Message->getChat()->getId();
         // Получаем язык
-        $this->lng = getLang($Message->getFrom()->getLanguageCode());
 
         //Авторизация и обновления языка
         $user = new authController($this->chat_id, $this->username, $this->firstname, $this->lastname);
