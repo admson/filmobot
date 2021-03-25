@@ -24,7 +24,7 @@
                 "main" => "menuMain",
                 "admin" => "menuAdmin",
                 "quiz" => "menuQuiz",
-                "quiz1" => "menuQuiz1",
+                "quiz_end" => "menuQuizEnd",
                 "quiz2" => "menuQuiz2",
                 "quiz3" => "menuQuiz3",
             ];
