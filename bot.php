@@ -40,7 +40,7 @@
         $view = new viewController($bot, $user_data, false, $db, $dbconnection, $lang);
 
         $msg_hash = explode(" ", $text);
-        #Check referral
+        #Check hash
         if (isset($msg_hash[1])) {
             $routes = $view->breadcrumbs;
             foreach ($routes as $key => $rout) {
@@ -48,12 +48,10 @@
                     call_user_func(array($view, $rout));
                 }
             }
-        }
-
-        if (in_array($chat_id,$admins) && !isset($msg_hash[1])) {
-            $view->menuAdmin();
         }else{
-            if (!isset($msg_hash[1])) {
+            if (in_array($chat_id,$admins)) {
+                $view->menuAdmin();
+            }else{
                 $view->menuMain();
             }
         }

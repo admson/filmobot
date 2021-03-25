@@ -77,6 +77,20 @@
                 if (isset($this->msg_id)) $this->bot->deleteMessage($this->chat_id,$this->msg_id);
                 $this->view->menuAdmin();
             }
+            if ($data[0] == "set_answer1") {
+                $answer = $this->db->select("SELECT * FROM quiz WHERE chat_id='".$this->chat_id."'");
+                if (isset($answer[0]['id'])) {
+                    $this->db->update("UPDATE quiz SET answer1 = '" . $data[1] . "' WHERE chat_id='" . $this->chat_id . "'");
+                    $this->view->menuQuiz2();
+                }else{
+                    $this->db->insert("INSERT INTO quiz(chat_id,answer1) VALUES('".$this->chat_id."','".$data[1]."')");
+                    $this->view->menuQuiz2();
+                }
+            }
+            if ($data[0] == "set_answer2") {
+                $this->db->update("UPDATE quiz SET answer2 = '".$data[1]."' WHERE chat_id='".$this->chat_id."'");
+                $this->view->menuQuizEnd();
+            }
 
         }
 	}

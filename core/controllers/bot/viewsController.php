@@ -110,9 +110,8 @@
             self::updateState($menu);
             $main_array = [];
 
-            array_push($main_array, array(array('text'=> "Ответ 1",'callback_data' => "view.menuQuiz1")));
-            array_push($main_array, array(array('text'=> "Ответ 2",'callback_data' => "view.menuQuiz2")));
-            array_push($main_array, array(array('text'=> "Ответ 3",'callback_data' => "view.menuQuiz3")));
+            array_push($main_array, array(array('text'=> "Ответ 1",'callback_data' => "set_answer1.1")));
+            array_push($main_array, array(array('text'=> "Ответ 2",'callback_data' => "set_answer1.2")));
             array_push($main_array, array(array('text'=> "URL",'url' => "https://t.me/")));
 
             array_push($main_array, array(array('text'=> $this->lang['cancel'],'callback_data' => "mainadmin")));
@@ -129,17 +128,18 @@
             }
         }
 
-        public function menuQuiz1() {
-            $menu = "admin/quiz/quiz1";
+        public function menuQuizEnd() {
+            $menu = "admin/quiz/quiz2/quiz_end";
             self::updateState($menu);
             $main_array = [];
 
-            array_push($main_array, array(array('text'=> $this->lang['back'],'callback_data' => "view.menuQuiz")));
+            array_push($main_array, array(array('text'=> $this->lang['back'],'callback_data' => "view.menuQuiz2")));
 
             $keyboard = new \TelegramBot\Api\Types\Inline\InlineKeyboardMarkup($main_array);
             $this->db->update("UPDATE accounts SET menu='$menu' WHERE chat_id='$this->chat_id'");
             $breadcrumps = self::getBreadCrumps($menu);
-            $answer = "<i>$breadcrumps</i>\n\nВыберите ответ";
+            $answer1 = $this->db->select("SELECT * FROM quiz WHERE chat_id='".$this->chat_id."'");
+            $answer = "<i>$breadcrumps</i>\n\nВаш ответ на первый вопрос <b>".$answer1[0]['answer1']."</b> на второй вопрос <b>".$answer1[0]['answer2']."</b>";
 
             if (isset($this->msg_id) && $this->msg_id > 0) {
                 editMessage($this->bot,$this->chat_id,$this->msg_id,$answer,$keyboard);
@@ -149,16 +149,20 @@
         }
 
         public function menuQuiz2() {
-            $menu = "dmin/quiz/quiz2";
+            $menu = "admin/quiz/quiz2";
             self::updateState($menu);
             $main_array = [];
+
+            array_push($main_array, array(array('text'=> "Ответ 3",'callback_data' => "set_answer2.3")));
+            array_push($main_array, array(array('text'=> "Ответ 4",'callback_data' => "set_answer2.4")));
 
             array_push($main_array, array(array('text'=> $this->lang['back'],'callback_data' => "view.menuQuiz")));
 
             $keyboard = new \TelegramBot\Api\Types\Inline\InlineKeyboardMarkup($main_array);
             $this->db->update("UPDATE accounts SET menu='$menu' WHERE chat_id='$this->chat_id'");
             $breadcrumps = self::getBreadCrumps($menu);
-            $answer = "<i>$breadcrumps</i>\n\nВыберите ответ";
+            $answer1 = $this->db->select("SELECT * FROM quiz WHERE chat_id='".$this->chat_id."'");
+            $answer = "<i>$breadcrumps</i>\n\nВы выбрали ответ номер <b>".$answer1[0]['answer1']."</b>\n\nВыберите ответ на второй вопрос";
 
             if (isset($this->msg_id) && $this->msg_id > 0) {
                 editMessage($this->bot,$this->chat_id,$this->msg_id,$answer,$keyboard);
@@ -168,7 +172,7 @@
         }
 
         public function menuQuiz3() {
-            $menu = "dmin/quiz/quiz3";
+            $menu = "admin/quiz/quiz3";
             self::updateState($menu);
             $main_array = [];
 
