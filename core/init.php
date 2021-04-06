@@ -22,3 +22,8 @@
 	//Подключаем Базу Данных
 	$db = new DB();
 	$dbconnection = $db->open();
+
+	include 'core/controllers/rcpController.php';
+    include "core/controllers/admin/messages.php";
+    include "core/controllers/main/messages.php";
+    include "core/controllers/main/views.php";

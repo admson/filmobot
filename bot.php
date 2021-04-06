@@ -34,23 +34,15 @@
         $user = new authController($chat_id, $username, $firstname, $last_name);
         $user_data = $user->authUser();
 
-        // ViewContoller
-        $view = new viewController($bot, $user_data, false, $db, $dbconnection, $lang);
-
         $msg_hash = explode(" ", $text);
         #Check hash
         if (isset($msg_hash[1])) {
-            $routes = $view->breadcrumbs;
-            foreach ($routes as $key => $rout) {
-                if (md5($key) == $msg_hash[1]) {
-                    call_user_func(array($view, $rout));
-                }
-            }
+            showRcp($msg_hash[1], $chat_id);
         }else{
             if (in_array($chat_id,$admins)) {
-                $view->menuAdmin();
+                showRcp("admin", $chat_id);
             }else{
-                $view->menuMain();
+                showRcp("main", $chat_id);
             }
         }
     });
@@ -69,9 +61,10 @@
             // todo
         }
 
-        // Message Controller передаем туда инфу и язык
+        // Message Controller
         if (isset($Message) && !is_null($Message)) {
             $controller_m = new MessageController($bot, $db, $dbconnection, $Message, $lang);
+            return true;
         }
 
         // Callback Controller

@@ -1,4 +1,6 @@
 <?php
+    //include "core/admin/callbacks.php";
+
 	class callbackController
 	{
 		//Main data
@@ -47,10 +49,6 @@
                 }
             }
 
-            $this->view = new viewController($this->bot, $this->user_data, false, $db, $dbconnection, $lang);
-
-            $this->vieww = new viewController($this->bot, $this->user_data, $this->msg_id, $db, $dbconnection, $lang);
-
             self::controller();
 
             try {
@@ -68,29 +66,15 @@
             $data = explode(".", $query);
 
             if ($data[0] == "view" && isset($data[1])) {
-                call_user_func(array($this->vieww, $data[1]));
+                showRcp($data[1],$this->chat_id,false, $this->msg_id);
             }
-            if ($data[0] == "vieww" && isset($data[1]) && isset($data[2])) {
-                call_user_func(array($this->vieww, $data[1]), $data[2]);
-            }
-            if ($data[0] == "mainadmin") {
-                if (isset($this->msg_id)) $this->bot->deleteMessage($this->chat_id,$this->msg_id);
-                $this->view->menuAdmin();
-            }
-            if ($data[0] == "set_answer1") {
-                $answer = $this->db->select("SELECT * FROM quiz WHERE chat_id='".$this->chat_id."'");
-                if (isset($answer[0]['id'])) {
-                    $this->db->update("UPDATE quiz SET answer1 = '" . $data[1] . "' WHERE chat_id='" . $this->chat_id . "'");
-                    $this->view->menuQuiz2();
-                }else{
-                    $this->db->insert("INSERT INTO quiz(chat_id,answer1) VALUES('".$this->chat_id."','".$data[1]."')");
-                    $this->view->menuQuiz2();
+            if ($data[0] == "hash" && isset($data[1])) {
+                $hash = $this->db->select("SELECT * FROM dialogs WHERE id='".$data[1]."'");
+                if (isset($hash[0]['id'])) {
+                    showRcp($hash[0]['menu'],$this->chat_id,false, $this->msg_id);
                 }
             }
-            if ($data[0] == "set_answer2") {
-                $this->db->update("UPDATE quiz SET answer2 = '".$data[1]."' WHERE chat_id='".$this->chat_id."'");
-                $this->view->menuQuizEnd();
-            }
+
 
         }
 	}

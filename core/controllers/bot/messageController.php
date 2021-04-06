@@ -33,6 +33,7 @@ class messageController
 
     function __construct($bot, $db, $dbconnection, $Message, $lang)
     {
+        global $routes;
         $this->db = $db;
         $this->dbconnection = $dbconnection;
         $this->bot = $bot;
@@ -55,61 +56,26 @@ class messageController
         $this->chat_id = $Message->getChat()->getId();
         // Получаем язык
 
-        //Авторизация и обновления языка
+        //Авторизация
         $user = new authController($this->chat_id, $this->username, $this->firstname, $this->lastname);
         $this->user_data = $user->authUser();
         // Если заблокирован
         if ($this->user_data[0]['status'] == 2) exit();
+        $dialogs = $db->select("SELECT * FROM dialogs WHERE chat_id='".$this->chat_id."' ORDER BY created_at DESC LIMIT 1");
 
-        // Вьюшки
-        $this->view = new viewController($this->bot, $this->user_data, false, $db, $dbconnection, $lang);
+        $data = [
+            'chat_id' => $this->chat_id,
+            'text' => $this->text,
+            'photo' => $this->photo,
+            'video' => $this->video,
+        ];
 
-        self::controller();
+        if (isset($dialogs[0]['id'])) $data['dialog'] = $dialogs[0];
+
+        if (isset($routes[$this->user_data[0]['menu']])) {
+            if (isset($routes[$this->user_data[0]['menu']]['message'])) call_user_func($routes[$this->user_data[0]['menu']]['message'],$data);
+        }
 
     }
-
-    public function controller()
-    {
-        global $admins;
-        // Стандартные меню в боте
-        $main_menu = [
-            '⚙ Админ меню' => 'menuAdmin',
-            '⚙ Admin Menu' => 'menuAdmin',
-        ];
-        // Админ меню в боте
-        $admin_menu = [
-            $this->lang['test'] => "menuQuiz",
-        ];
-
-        if (isset($main_menu[$this->text])) {
-            call_user_func(array($this->view, $main_menu[$this->text]));
-            exit();
-        }
-        if (in_array($this->chat_id,$admins)) {
-            if (isset($admin_menu[$this->text])) {
-                call_user_func(array($this->view, $admin_menu[$this->text]));
-                exit();
-            }
-        }
-
-
-        // Функции для текущего меню (user_data menu) без передачи id
-        $allow_menus = [
-        ];
-        // Функции для текущего меню (user_data menu.$id) c передачей id
-        $allow_menus_2 = [
-        ];
-
-        if (isset($allow_menus[$this->user_data[0]['menu']])) {
-            call_user_func("self::" . $allow_menus[$this->user_data[0]['menu']]);
-            exit();
-        }
-        $data = explode(".", $this->user_data[0]['menu']);
-        if (isset($allow_menus_2[$data[0]]) && isset($data[1])) {
-            call_user_func("self::" . $allow_menus_2[$data[0]], $data[1]);
-            exit();
-        }
-    }
-
 
 }
