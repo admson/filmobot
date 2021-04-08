@@ -10,10 +10,6 @@ class messageController
     public $bot;
     public $Message;
     public $lang;
-    public $lng;
-
-    //view
-    public $view;
 
     //Input data
     public $text;
@@ -54,7 +50,6 @@ class messageController
         $this->lastname = $Message->getChat()->getLastName();
         $this->username = $Message->getChat()->getUsername();
         $this->chat_id = $Message->getChat()->getId();
-        // Получаем язык
 
         //Авторизация
         $user = new authController($this->chat_id, $this->username, $this->firstname, $this->lastname);

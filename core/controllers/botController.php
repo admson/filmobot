@@ -90,30 +90,6 @@ function sendDocument($bot,$chat_id,$file_id,$caption,$replyMarkup = null, $disa
     }
 }
 
-function sendMediaGroup($bot,$chat_id,$media_id,$caption = null,$disableNotification = false) {
-    global $dbb;
-    $parseMode = "html";
-    $replyToMessageId = null;
-
-    $mediagroups = $dbb->select("SELECT * FROM mediagroups WHERE media_id='$media_id'");
-    $media = new \TelegramBot\Api\Types\InputMedia\ArrayOfInputMedia();
-    $i = 0;
-    foreach ($mediagroups as $med) {
-        if ($i > 0) $caption = null;
-        if ($med['type'] == "photo") {
-            $media->addItem(new TelegramBot\Api\Types\InputMedia\InputMediaPhoto($med['file_id'],$caption,$parseMode));
-        }
-        if ($med['type'] == "video") {
-            $media->addItem(new TelegramBot\Api\Types\InputMedia\InputMediaVideo($med['file_id'],$caption,$parseMode));
-        }
-        $i++;
-    }
-    try {
-        return $bot->sendMediaGroup($chat_id,$media,$disableNotification,$replyToMessageId);
-    } catch (TelegramBot\Api\HttpException $e) {
-        exit();
-    }
-}
 
 function editMessageCaption($bot,$chat_id,$msg_id,$caption,$keyboard = null) {
     try {

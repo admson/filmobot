@@ -7,7 +7,6 @@
     include 'core/controllers/bot/authController.php'; // Авторизация
     include 'core/controllers/bot/messageController.php'; // Контроллер для входящих сообщений
     include 'core/controllers/bot/callbackController.php'; // Контроллер для каллбеков
-    include 'core/controllers/bot/viewsController.php'; // Вьюшки/Диалоги
     include 'core/controllers/botController.php'; // Основные функции Bot api
     include 'core/controllers/entitiesController.php'; // Обработчик для enities
 
@@ -37,12 +36,12 @@
         $msg_hash = explode(" ", $text);
         #Check hash
         if (isset($msg_hash[1])) {
-            showRcp($msg_hash[1], $chat_id);
+            showRpc($msg_hash[1], $chat_id);
         }else{
             if (in_array($chat_id,$admins)) {
-                showRcp("admin", $chat_id);
+                showRpc("admin", $chat_id);
             }else{
-                showRcp("main", $chat_id);
+                showRpc("main", $chat_id);
             }
         }
     });

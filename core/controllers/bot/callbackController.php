@@ -1,5 +1,4 @@
 <?php
-    //include "core/admin/callbacks.php";
 
 	class callbackController
 	{
@@ -10,8 +9,7 @@
 		public $Callback;
 		public $Message;
 		public $lang;
-		public $view;
-		public $vieww;
+
 		public $msg_id;
 
 		//UserData
@@ -49,12 +47,12 @@
                 }
             }
 
+            //Обработка
             self::controller();
 
             try {
                 $this->bot->answerCallbackQuery($Callback->getId());
             }catch (TelegramBot\Api\HttpException $e) {
-                $view = $this->vieww->menuMain();
                 exit();
             }
             exit();
@@ -65,13 +63,27 @@
             $query = $this->Callback->getData();
             $data = explode(".", $query);
 
+
+            // Обработка каллбеков для перекидывания сразу на меню ( с сохраненим параметров id)
             if ($data[0] == "view" && isset($data[1])) {
-                showRcp($data[1],$this->chat_id,false, $this->msg_id);
+                $dialog = $this->db->select("SELECT * FROM dialogs WHERE chat_id='".$this->chat_id."' ORDER BY created_at DESC LIMIT 1");
+                $data2 = false;
+                if (isset($dialog[0]['data'])) $data2 = $dialog[0]['data'];
+                showRpc($data[1],$this->chat_id,false, $this->msg_id,$data2);
+            }// Обработка каллбеков для перекидывания сразу на меню ( с сохраненим параметров id)
+            if ($data[0] == "catalog_page" && isset($data[1])) {
+                $dialog = $this->db->select("SELECT * FROM dialogs WHERE chat_id='".$this->chat_id."' ORDER BY created_at DESC LIMIT 1");
+                $data2 = false;
+                if (isset($dialog[0]['data'])) $data2 = $dialog[0]['data'];
+                showRpc($data[1],$this->chat_id,false, $this->msg_id,$data2);
             }
+            // Обработка хешей на меню ( с сохраненим параметров id)
             if ($data[0] == "hash" && isset($data[1])) {
                 $hash = $this->db->select("SELECT * FROM dialogs WHERE id='".$data[1]."'");
                 if (isset($hash[0]['id'])) {
-                    showRcp($hash[0]['menu'],$this->chat_id,false, $this->msg_id);
+                    $data3 = false;
+                    if (isset($dialog[0]['data'])) $data3 = $hash[0]['data'];
+                    showRpc($hash[0]['menu'],$this->chat_id,false, $this->msg_id,$data3);
                 }
             }
 
