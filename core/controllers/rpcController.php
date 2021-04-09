@@ -58,7 +58,7 @@
     // $hash - либо хеш либо название menu
     // $chat_id - чат id аккаунит
     // inline_keyboard,$msg_id,$data($id фильма,категории и т.д) - не обязательные параметры
-    function showRpc($hash,$chat_id,$keyboard = false,$msg_id = false,$data = false) {
+    function showRpc($hash,$chat_id,$keyboard = false,$msg_id = false,$data = false,$page = 1) {
         global $routes,$db,$bot,$lang;
 
         // Если это хеш то получаем данные меню и id
@@ -89,7 +89,8 @@
 
             //Добавляем клавиатуру из функции
             if (isset($routes[$hash]['keyboard_func'])) {
-                $kbfunc = call_user_func($routes[$hash]['keyboard_func']);
+                if (isset($page) && $page > 1) $db->update("UPDATE dialogs SET page='$page' WHERE id='$new_state'");
+                $kbfunc = call_user_func($routes[$hash]['keyboard_func'],$page);
                 $kbarray = array_merge($kbarray,$kbfunc);
             }
 

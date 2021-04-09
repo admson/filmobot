@@ -72,10 +72,9 @@
                 showRpc($data[1],$this->chat_id,false, $this->msg_id,$data2);
             }// Обработка каллбеков для перекидывания сразу на меню ( с сохраненим параметров id)
             if ($data[0] == "catalog_page" && isset($data[1])) {
-                $dialog = $this->db->select("SELECT * FROM dialogs WHERE chat_id='".$this->chat_id."' ORDER BY created_at DESC LIMIT 1");
                 $data2 = false;
                 if (isset($dialog[0]['data'])) $data2 = $dialog[0]['data'];
-                showRpc($data[1],$this->chat_id,false, $this->msg_id,$data2);
+                showRpc("categories",$this->chat_id,false, $this->msg_id,$data2,$data[1]);
             }
             // Обработка хешей на меню ( с сохраненим параметров id)
             if ($data[0] == "hash" && isset($data[1])) {

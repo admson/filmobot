@@ -36,7 +36,12 @@
         $msg_hash = explode(" ", $text);
         #Check hash
         if (isset($msg_hash[1])) {
-            showRpc($msg_hash[1], $chat_id);
+            $prefix = substr($msg_hash[1],0,2);
+            if ($prefix == "flm") {
+
+            }else{
+                showRpc($msg_hash[1], $chat_id);
+            }
         }else{
             if (in_array($chat_id,$admins)) {
                 showRpc("admin", $chat_id);
