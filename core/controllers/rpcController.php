@@ -13,12 +13,14 @@
                 array(array('text'=> $lang['del_film'],'callback_data' => "view.categories")),
             ],
             'clean_cache' => true,
+            'prev_menu' => false,
         ],
 
         "add_film_text" => [
             'name' => "добавить_текст",
             'answer' => $lang['add_film_answer'],
             'message' => "addFilmText",
+            'prev_menu' => "admin",
         ],
 
         "add_film_photo" => [
@@ -28,6 +30,7 @@
                 array(array('text'=> $lang['skip'],'callback_data' => "view.add_film_trailer")),
             ],
             'message' => "addFilmPhoto",
+            'prev_menu' => "add_film_text",
         ],
 
         "add_film_trailer" => [
@@ -37,12 +40,14 @@
                 array(array('text'=> $lang['skip'],'callback_data' => "view.add_film_video")),
             ],
             'message' => "addFilmTrailer",
+            'prev_menu' => "add_film_photo",
         ],
 
         "add_film_video" => [
             'name' => "добавить_фильм",
             'answer' => $lang['add_film_video_answer'],
             'message' => "addFilmVideo",
+            'prev_menu' => "add_film_trailer",
         ],
 
         "categories" => [
@@ -97,21 +102,16 @@
             // Хлебные крошки и кнопки Назад, отмена
             $breads = "";
             if (!isset($routes[$hash]['clean_cache'])) {
-                $dialogs = $db->select("SELECT * FROM dialogs WHERE chat_id='$chat_id' ORDER BY created_at DESC");
                 $dialogs_bread = $db->select("SELECT * FROM dialogs WHERE chat_id='$chat_id' ORDER BY created_at");
-
-                if (isset($dialogs[1]['id']) && isset($routes[$dialogs[1]['menu']])) {
-                    $prev_menu = $dialogs[1]['id'];
-                    if (isset($routes[$dialogs[1]['menu']]['clean_cache'])) {
-                        array_push($kbarray, array(array('text'=> $lang['cancel'],'callback_data' => "hash.".$prev_menu)));
-                    }else{
-                        array_push($kbarray, array(array('text'=> $lang['back'],'callback_data' => "hash.".$prev_menu)));
-                    }
-                }
-
                 foreach ($dialogs_bread as $state) {
                     if (isset($routes[$state['menu']]) && !isset($routes[$state['menu']]['clean_cache'])) $breads.= "<i>/<a href='https://t.me/".$bot_username."?start=".$state['hash']."'>".$routes[$state['menu']]['name']."</a></i>";
                 }
+            }
+
+            // Назад и отмена
+            if (!isset($routes[$hash]['clean_cache'])) {
+                $prev_menu = $routes[$hash]['prev_menu'];
+                array_push($kbarray, array(array('text'=> $lang['back'],'callback_data' => "prew.".$prev_menu),array('text'=> $lang['cancel'],'callback_data' => "view.admin")));
             }
 
 

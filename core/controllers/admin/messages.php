@@ -131,7 +131,7 @@
 
             try {
                 $msg_id2 = $bot->sendMediaGroup(PRIVATECHATID,$media);
-                if (isset($msg_id1)) $db->update("UPDATE films SET private_msg_id='".$msg_id2->getMessageId()."' WHERE id='$film_id'");
+                if (isset($msg_id2)) $db->update("UPDATE films SET private_msg_id='".$msg_id2->getMessageId()."' WHERE id='$film_id'");
             } catch (TelegramBot\Api\HttpException $e) {
                 exit();
             }

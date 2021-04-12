@@ -63,6 +63,7 @@
             $query = $this->Callback->getData();
             $data = explode(".", $query);
 
+//            sendMessage($this->bot,$this->chat_id,$data[0]." page ".$data[1]);
 
             // Обработка каллбеков для перекидывания сразу на меню ( с сохраненим параметров id)
             if ($data[0] == "view" && isset($data[1])) {
@@ -84,6 +85,16 @@
                     if (isset($dialog[0]['data'])) $data3 = $hash[0]['data'];
                     showRpc($hash[0]['menu'],$this->chat_id,false, $this->msg_id,$data3);
                 }
+            }
+            // предыдущая страница
+            if ($data[0] == "prew" && isset($data[1])) {
+                $dialog = $this->db->select("SELECT * FROM dialogs WHERE chat_id='".$this->chat_id."' ORDER BY created_at DESC LIMIT 2");
+                $data2 = false;
+                if (isset($dialog[0]['data'])) $data2 = $dialog[0]['data'];
+                foreach ($dialog as $diag) {
+                    $this->db->delete("DELETE FROM dialogs WHERE id='".$diag['id']."'");
+                }
+                showRpc($data[1],$this->chat_id,false, $this->msg_id,$data2);
             }
 
 
