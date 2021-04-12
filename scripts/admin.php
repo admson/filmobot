@@ -1,7 +1,17 @@
 <?php
+
+    function getHashtags($string) {
+        $hashtags= FALSE;
+        preg_match_all("/(#\w+)/u", $string, $matches);
+        if ($matches) {
+            $hashtagsArray = array_count_values($matches[0]);
+            $hashtags = array_keys($hashtagsArray);
+        }
+        return $hashtags;
+    }
     
     function addFilmText($data) {
-        global $db,$bot,$lang;
+        global $db,$dbconnection,$bot,$lang;
         if (isset($data['text'])) {
             $kb = [];
             array_push($kb, array(array('text'=> $lang['cancel'],'callback_data' => "view.admin")));
@@ -18,7 +28,7 @@
             }
 
 
-            $genres = preg_split('/[\s]+/', end($string));
+            $genres = getHashtags(end($string));
             $ctgrs = [];
             foreach ($genres as $gen) {
                 $gen = str_replace("#", "", $gen);
@@ -34,7 +44,7 @@
             }
 
             if (isset($year[1]) && isset($name) && count($ctgrs) >= 1) {
-                $new_film = $db->insert("INSERT INTO films(text,name,year,categories) VALUES('".$data['text']."','$name','".$year[1]."','".json_encode($ctgrs)."')");
+                $new_film = $db->insert("INSERT INTO films(text,name,year,categories) VALUES('".mysqli_real_escape_string($dbconnection,$data['text'])."','$name','".$year[1]."','".json_encode($ctgrs)."')");
                 if (isset($new_film)) {
                     showRpc("add_film_photo", $data['chat_id'], false, false, $new_film);
                 }
