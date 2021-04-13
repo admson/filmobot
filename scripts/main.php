@@ -1,5 +1,5 @@
 <?php
-
+    // функция каталога
     function menuCatalog($page = 1) {
         global $db;
 

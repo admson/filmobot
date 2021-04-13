@@ -58,6 +58,7 @@ class messageController
         if ($this->user_data[0]['status'] == 2) exit();
         $dialogs = $db->select("SELECT * FROM dialogs WHERE chat_id='".$this->chat_id."' ORDER BY created_at DESC LIMIT 1");
 
+        // запоминаем данные и передаем в функцию
         $data = [
             'chat_id' => $this->chat_id,
             'text' => $this->text,
