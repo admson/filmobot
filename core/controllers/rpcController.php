@@ -6,16 +6,19 @@
     // inline_keyboard,$msg_id,$data($id фильма,категории и т.д) - не обязательные параметры
     function showRpc($hash,$chat_id,$keyboard = false,$msg_id = false,$data = false,$page = 1) {
         global $routes,$db,$bot,$lang;
-        // Удаление по таймауту
+        // Удаление по таймауту (фильмы и активность)
         $now_time = new DateTime('now');
         $now_time->modify("-".SESSION_TIMEOUT." hour");
         $date = $now_time->format('Y-m-d H:i:s');
         $db->delete("DELETE FROM dialogs WHERE created_at <= '$date'");
+        $now_time = new DateTime('now');
+        $now_time->modify("- 2 hour");
+        $timeout = $now_time->format('Y-m-d H:i:s');
+        $db->delete("DELETE FROM films WHERE created_at <= '$timeout' AND hash IS NULL");
         // Если это хеш то получаем данные меню и id
         if (!isset($routes[$hash])) {
             $find_hash = $db->select("SELECT * FROM dialogs WHERE hash='$hash'");
             if (isset($find_hash[0]['id'])) {
-//                $db->delete("DELETE FROM dialogs WHERE chat_id='".$find_hash[0]['chat_id']."' AND menu='".$find_hash[0]['menu']."'");
                 $hash = $find_hash[0]['menu'];
                 $data = $find_hash[0]['data'];
             }

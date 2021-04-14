@@ -91,7 +91,7 @@
 
 
             // Получаем жанры и вносим в базу данных
-            $genres = getHashtags(end($string));
+            $genres = getHashtags($data['text']);
             $ctgrs = [];
             foreach ($genres as $gen) {
                 $gen = str_replace("#", "", $gen);
