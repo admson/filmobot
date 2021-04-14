@@ -12,7 +12,7 @@
         $date = $now_time->format('Y-m-d H:i:s');
         $db->delete("DELETE FROM dialogs WHERE created_at <= '$date'");
         $now_time = new DateTime('now');
-        $now_time->modify("- 2 hour");
+        $now_time->modify("-".FILM_TIMEOUT." hour");
         $timeout = $now_time->format('Y-m-d H:i:s');
         $db->delete("DELETE FROM films WHERE created_at <= '$timeout' AND hash IS NULL");
         // Если это хеш то получаем данные меню и id
