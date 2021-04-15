@@ -24,5 +24,6 @@
 	$dbconnection = $db->open();
 
 	include 'core/controllers/rpcController.php';
+	include 'core/controllers/scriptController.php';
     include "scripts/admin.php";
     include "scripts/main.php";

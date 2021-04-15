@@ -63,8 +63,6 @@
             $query = $this->Callback->getData();
             $data = explode(".", $query);
 
-//            sendMessage($this->bot,$this->chat_id,$data[0]." page ".$data[1]);
-
             // Обработка каллбеков для перекидывания сразу на меню ( с сохраненим параметров id)
             if ($data[0] == "view" && isset($data[1])) {
                 $dialog = $this->db->select("SELECT * FROM dialogs WHERE chat_id='".$this->chat_id."' ORDER BY created_at DESC LIMIT 1");

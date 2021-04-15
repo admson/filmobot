@@ -5,7 +5,7 @@
     // $chat_id - чат id аккаунит
     // inline_keyboard,$msg_id,$data($id фильма,категории и т.д) - не обязательные параметры
     function showRpc($hash,$chat_id,$keyboard = false,$msg_id = false,$data = false,$page = 1) {
-        global $routes,$db,$bot,$lang;
+        global $routes,$db,$bot,$lang,$admins;
         // Удаление по таймауту (фильмы и активность)
         $now_time = new DateTime('now');
         $now_time->modify("-".SESSION_TIMEOUT." hour");
@@ -43,7 +43,18 @@
             //Добавляем клавиатуру из функции
             if (isset($routes[$hash]['keyboard_func'])) {
                 if (isset($page) && $page > 1) $db->update("UPDATE dialogs SET page='$page' WHERE id='$new_state'");
-                $kbfunc = call_user_func($routes[$hash]['keyboard_func'],$page);
+
+                if (in_array($chat_id,$admins)) {
+                    if (isset($routes[$hash]['keyboard_func'])) {
+                        $admin = new Admin();
+                        $kbfunc = call_user_func(array($admin,$routes[$hash]['keyboard_func']),$page);
+                    }
+                }else{
+                    if (isset($routes[$hash]['keyboard_func'])) {
+                        $main = new Main();
+                        $kbfunc = call_user_func(array($main,$routes[$hash]['keyboard_func']),$page);
+                    }
+                }
                 $kbarray = array_merge($kbarray,$kbfunc);
             }
 
@@ -76,3 +87,43 @@
             }
         }
     }
+
+//    class Rpc {
+//
+//        //Бот, БД, Язык
+//        public $db;
+//        public $dbconnection;
+//        public $bot;
+//        public $lang;
+//
+//        // Конструктор
+//        public function __construct(){
+//            global $db,$dbconnection,$bot,$lang;
+//            $this->db = $db;
+//            $this->dbconnection = $dbconnection;
+//            $this->bot = $bot;
+//            $this->lang = $lang;
+//
+//            // Подгрузка скриптов.
+//
+//        }
+//
+//        // Отрисовка меню
+//        public function show($hash,$chat_id,$keyboard = false,$msg_id = false,$data = false,$page = 1) {
+//            self::deleteTimeout();
+//
+//        }
+//
+//        // Удаление по таймауту
+//        public function deleteTimeout() {
+//            // Удаление активностей, историю пользователя
+//            $now_time = new DateTime('now');
+//            $now_time->modify("-".SESSION_TIMEOUT." hour");
+//            $this->db->delete("DELETE FROM dialogs WHERE created_at <= '".$now_time->format('Y-m-d H:i:s')."'");
+//            // Удаление фильмов по таймауту
+//            $now_time = new DateTime('now');
+//            $now_time->modify("-".FILM_TIMEOUT." hour");
+//            $this->db->delete("DELETE FROM films WHERE created_at <= '".$now_time->format('Y-m-d H:i:s')."' AND hash IS NULL");
+//        }
+//
+//    }

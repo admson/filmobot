@@ -1,4 +1,14 @@
 <?php
+    $newroutes = [
+        "main" => [
+            'name' => "главная",
+            'answer' => $lang['choose_categories'],
+            'keyboard_func' => "menuMain",
+            'clean_cache' => true,
+            'prev_menu' => false,
+        ],
+    ];
+
     // функция каталога
     function menuCatalog($page = 1) {
         global $db;
@@ -29,4 +39,15 @@
         }
 
         return $main_array;
+    }
+
+    class Main extends scriptController
+    {
+        // Берем данные с scriptController
+        // $this->bot - бот, $this->db - база данных, $this->lang - язык
+        public function __construct()
+        {
+            parent::__construct();
+        }
+
     }
