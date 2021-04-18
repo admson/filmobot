@@ -5,16 +5,17 @@
     // $chat_id - чат id аккаунит
     // inline_keyboard,$msg_id,$data($id фильма,категории и т.д) - не обязательные параметры
     function showRpc($hash,$chat_id,$keyboard = false,$msg_id = false,$data = false,$page = 1) {
-        global $routes,$db,$bot,$lang,$admins;
+        global $routes,$db,$bot,$lang;
         // Удаление по таймауту (фильмы и активность)
         $now_time = new DateTime('now');
-        $now_time->modify("-".SESSION_TIMEOUT." hour");
-        $date = $now_time->format('Y-m-d H:i:s');
-        $db->delete("DELETE FROM dialogs WHERE created_at <= '$date'");
+        $now_time->modify("-".SESSION_TIMEOUT." minutes");
+        $db->delete("DELETE FROM dialogs WHERE created_at <= '".$now_time->format('Y-m-d H:i:s')."'");
+
+        // Фильмы
         $now_time = new DateTime('now');
-        $now_time->modify("-".FILM_TIMEOUT." hour");
-        $timeout = $now_time->format('Y-m-d H:i:s');
-        $db->delete("DELETE FROM films WHERE created_at <= '$timeout' AND hash IS NULL");
+        $now_time->modify("-".FILM_TIMEOUT." minutes");
+        $db->delete("DELETE FROM films WHERE created_at <= '".$now_time->format('Y-m-d H:i:s')."' AND hash IS NULL");
+
         // Если это хеш то получаем данные меню и id
         if (!isset($routes[$hash])) {
             $find_hash = $db->select("SELECT * FROM dialogs WHERE hash='$hash'");
@@ -44,17 +45,17 @@
             if (isset($routes[$hash]['keyboard_func'])) {
                 if (isset($page) && $page > 1) $db->update("UPDATE dialogs SET page='$page' WHERE id='$new_state'");
 
-                if (in_array($chat_id,$admins)) {
-                    if (isset($routes[$hash]['keyboard_func'])) {
-                        $admin = new Admin();
-                        $kbfunc = call_user_func(array($admin,$routes[$hash]['keyboard_func']),$page);
-                    }
-                }else{
-                    if (isset($routes[$hash]['keyboard_func'])) {
-                        $main = new Main();
-                        $kbfunc = call_user_func(array($main,$routes[$hash]['keyboard_func']),$page);
-                    }
+                $role = getRole($chat_id);
+                switch ($role) {
+                    case "Admin":
+                        $func = new Admin();
+                        break;
+                    default:
+                        $func = new Main();
+                        break;
                 }
+                $kbfunc = call_user_func(array($func,$routes[$hash]['keyboard_func']),$page);
+
                 $kbarray = array_merge($kbarray,$kbfunc);
             }
 

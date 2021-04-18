@@ -29,7 +29,7 @@ class messageController
 
     function __construct($bot, $db, $dbconnection, $Message, $lang)
     {
-        global $routes,$admins;
+        global $routes,$emploers;
         $this->db = $db;
         $this->dbconnection = $dbconnection;
         $this->bot = $bot;
@@ -68,17 +68,16 @@ class messageController
 
         if (isset($dialogs[0]['id'])) $data['dialog'] = $dialogs[0];
 
-        if (in_array($this->chat_id,$admins)) {
-            if (isset($routes[$this->user_data[0]['menu']]['message'])) {
-                $admin = new Admin();
-                call_user_func(array($admin,$routes[$this->user_data[0]['menu']]['message']),$data);
-            }
-        }else{
-            if (isset($routes[$this->user_data[0]['menu']]['message'])) {
-                $main = new Main();
-                call_user_func(array($main,$routes[$this->user_data[0]['menu']]['message']),$data);
-            }
+        $role = getRole($this->chat_id);
+        switch ($role) {
+            case "Admin":
+                $func = new Admin();
+                break;
+            default:
+                $func = new Main();
+                break;
         }
+        call_user_func(array($func,$routes[$this->user_data[0]['menu']]['message']),$data);
 
     }
 

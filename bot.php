@@ -12,7 +12,7 @@
 
     $bot = new \TelegramBot\Api\Client(BOT_TOKEN);
 
-    $bot->command('start', function ($message) use ($bot, $db, $dbconnection, $lang, $admins) {
+    $bot->command('start', function ($message) use ($bot, $db, $dbconnection, $lang) {
         $text = $message->getText();
         $firstname = $message->getChat()->getFirstName();
         $last_name = $message->getChat()->getLastName();
@@ -43,10 +43,14 @@
                 showRpc($msg_hash[1], $chat_id);
             }
         }else{
-            if (in_array($chat_id,$admins)) {
-                showRpc("admin", $chat_id);
-            }else{
-                showRpc("main", $chat_id);
+            $role = getRole($chat_id);
+            switch ($role) {
+                case "Admin":
+                    showRpc("admin", $chat_id);
+                    break;
+                default:
+                    showRpc("main", $chat_id);
+                    break;
             }
         }
     });

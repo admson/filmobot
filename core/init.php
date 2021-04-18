@@ -16,6 +16,17 @@
         file_put_contents(__DIR__ . '/dumpdata.txt', print_r($data, true));
     }
 
+    // Get Role
+    function getRole($chat_id) {
+        global $employers;
+        if (isset($employers[$chat_id])) {
+            $role = $employers[$chat_id];
+        }else{
+            $role = "Main";
+        }
+        return $role;
+    }
+
     include 'config.php'; // Основной конфиг
     include 'lang/'.LANG.'.php';
 

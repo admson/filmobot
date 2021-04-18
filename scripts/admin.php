@@ -75,6 +75,7 @@
                 // получение название и года
                 if (isset($string[0])) {
                     preg_match('#\\((.*?)\\)#', $string[0], $year); // год
+                    if (isset($year[1]) && intval($year[1]) >= 1) $year_val = intval($year[1]);
                     $start = 0;
                     $end = strpos($string[0], '(', $start + 1);
                     $length = $end - $start;
@@ -99,8 +100,8 @@
                 }
 
                 // Проверка на формат, insert в бд
-                if (isset($year[1]) && isset($name) && count($ctgrs) >= 1) {
-                    $new_film = $this->db->insert("INSERT INTO films(text,name,year,categories) VALUES('".mysqli_real_escape_string($this->dbconnection,$data['text'])."','$name','".$year[1]."','".json_encode($ctgrs)."')");
+                if (isset($year_val) && isset($name) && count($ctgrs) >= 1) {
+                    $new_film = $this->db->insert("INSERT INTO films(text,name,year,categories) VALUES('".mysqli_real_escape_string($this->dbconnection,$data['text'])."','$name','".$year_val."','".json_encode($ctgrs)."')");
                     if (isset($new_film)) {
                         showRpc("add_film_photo", $data['chat_id'], false, false, $new_film);
                     }
