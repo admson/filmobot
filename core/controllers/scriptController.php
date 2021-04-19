@@ -8,6 +8,7 @@
         public $bot;
         public $lang;
         public $routes;
+        public $rcp;
 
         // Конструктор
         public function __construct(){
@@ -18,6 +19,7 @@
             $this->bot = $bot;
             $this->lang = $lang;
             $this->routes = $routes;
+            $this->rcp = new Rcp();
         }
 
         // Функция получения хеш-тегов
@@ -47,21 +49,21 @@
             return $media;
         }
 
-        //Получение категорий с постраничной пагинацией
-        public function getCategories($page = 1) {
+        //Получение кнопок с пагинацией
+        public function getButtons($page = 1,$table,$callback) {
             // Пагинатор
             $per_page = PER_PAGE;
-            $count = $this->db->count("SELECT COUNT(1) FROM categories");
+            $count = $this->db->count("SELECT COUNT(1) FROM $table");
             $total = intval(($count - 1) / $per_page) + 1;
             if(empty($page) or $page < 0) $page = 1;
             if($page > $total) $page = $total;
             $start = $page * $per_page - $per_page;
 
-            $categories = $this->db->select("SELECT * FROM categories LIMIT $start,$per_page");
+            $content = $this->db->select("SELECT * FROM $table LIMIT $start,$per_page");
             $main_array = [];
 
-            foreach ($categories as $ctgr) {
-                array_push($main_array, array(array('text'=>$ctgr['name'],'callback_data' => 'vieww.set_category.'.$ctgr['id'])));
+            foreach ($content as $cont) {
+                array_push($main_array, array(array('text'=>$cont['name'],'callback_data' => $callback.$cont['id'])));
             }
 
             if ($count > PER_PAGE) {

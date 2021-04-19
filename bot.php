@@ -38,7 +38,7 @@
             if ($prefix == "flm") {
 
             }else{
-                showRpc($msg_hash[1], $chat_id);
+                (new Rpc)->show($msg_hash[1], $chat_id);
             }
         }else{
             if (isset($employers[$chat_id])) {
@@ -46,7 +46,7 @@
             }else{
                 $role = "main";
             }
-            showRpc(strtolower($role), $chat_id);
+            (new Rpc)->show(strtolower($role), $chat_id);
         }
     });
 

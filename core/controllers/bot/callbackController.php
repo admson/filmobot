@@ -18,6 +18,7 @@
 		public $lastname;
 		public $firstname;
 		public $user_data;
+		public $rpc;
 
 		function __construct($bot,$db,$dbconnection,$Callback,$lang)
 		{
@@ -35,6 +36,7 @@
             $this->chat_id = $this->Message->getChat()->getId();
             $this->lng = $this->Message->getFrom()->getLanguageCode();
             $this->msg_id = $this->Message->getMessageId();
+            $this->rpc = new Rpc();
 
             $user = new authController($this->chat_id, $this->username, $this->firstname, $this->lastname);
             $this->user_data = $user->authUser();
@@ -62,18 +64,18 @@
         {
             $query = $this->Callback->getData();
             $data = explode(".", $query);
+            $dialog = $this->db->select("SELECT * FROM dialogs WHERE chat_id='".$this->chat_id."' ORDER BY created_at DESC LIMIT 1");
 
             // Обработка каллбеков для перекидывания сразу на меню ( с сохраненим параметров id)
             if ($data[0] == "view" && isset($data[1])) {
-                $dialog = $this->db->select("SELECT * FROM dialogs WHERE chat_id='".$this->chat_id."' ORDER BY created_at DESC LIMIT 1");
                 $data2 = false;
                 if (isset($dialog[0]['data'])) $data2 = $dialog[0]['data'];
-                showRpc($data[1],$this->chat_id,false, $this->msg_id,$data2);
+                $this->rpc->show($data[1],$this->chat_id,false, $this->msg_id,$data2);
             }// Обработка каллбеков для перекидывания сразу на меню ( с сохраненим параметров id)
             if ($data[0] == "catalog_page" && isset($data[1])) {
                 $data2 = false;
                 if (isset($dialog[0]['data'])) $data2 = $dialog[0]['data'];
-                showRpc("categories",$this->chat_id,false, $this->msg_id,$data2,$data[1]);
+                $this->rpc->show($dialog[0]['menu'],$this->chat_id,false, $this->msg_id,$data2,$data[1]);
             }
             // Обработка хешей на меню ( с сохраненим параметров id)
             if ($data[0] == "hash" && isset($data[1])) {
@@ -81,7 +83,7 @@
                 if (isset($hash[0]['id'])) {
                     $data3 = false;
                     if (isset($dialog[0]['data'])) $data3 = $hash[0]['data'];
-                    showRpc($hash[0]['menu'],$this->chat_id,false, $this->msg_id,$data3);
+                    $this->rpc->show($hash[0]['menu'],$this->chat_id,false, $this->msg_id,$data3);
                 }
             }
             // предыдущая страница
@@ -92,7 +94,7 @@
                 foreach ($dialog as $diag) {
                     $this->db->delete("DELETE FROM dialogs WHERE id='".$diag['id']."'");
                 }
-                showRpc($data[1],$this->chat_id,false, $this->msg_id,$data2);
+                $this->rpc->show($data[1],$this->chat_id,false, $this->msg_id,$data2);
             }
 
 
