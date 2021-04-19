@@ -44,17 +44,8 @@
             //Добавляем клавиатуру из функции
             if (isset($routes[$hash]['keyboard_func'])) {
                 if (isset($page) && $page > 1) $db->update("UPDATE dialogs SET page='$page' WHERE id='$new_state'");
-
                 $role = getRole($chat_id);
-                switch ($role) {
-                    case "Admin":
-                        $func = new Admin();
-                        break;
-                    default:
-                        $func = new Main();
-                        break;
-                }
-                $kbfunc = call_user_func(array($func,$routes[$hash]['keyboard_func']),$page);
+                $kbfunc = call_user_func(array($role,$routes[$hash]['keyboard_func']),$page);
 
                 $kbarray = array_merge($kbarray,$kbfunc);
             }

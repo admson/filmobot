@@ -69,15 +69,7 @@ class messageController
         if (isset($dialogs[0]['id'])) $data['dialog'] = $dialogs[0];
 
         $role = getRole($this->chat_id);
-        switch ($role) {
-            case "Admin":
-                $func = new Admin();
-                break;
-            default:
-                $func = new Main();
-                break;
-        }
-        call_user_func(array($func,$routes[$this->user_data[0]['menu']]['message']),$data);
+        call_user_func(array($role,$routes[$this->user_data[0]['menu']]['message']),$data);
 
     }
 

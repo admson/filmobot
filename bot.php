@@ -12,7 +12,7 @@
 
     $bot = new \TelegramBot\Api\Client(BOT_TOKEN);
 
-    $bot->command('start', function ($message) use ($bot, $db, $dbconnection, $lang) {
+    $bot->command('start', function ($message) use ($bot, $db, $dbconnection, $lang, $employers) {
         $text = $message->getText();
         $firstname = $message->getChat()->getFirstName();
         $last_name = $message->getChat()->getLastName();
@@ -25,9 +25,7 @@
             $new_account = true;
         }else{
             // status 2 это если человек заблокирован
-            if ($is_account[0]['status'] == 2) {
-                exit();
-            }
+            if ($is_account[0]['status'] == 2) exit();
         }
         // Авторизация пользователя
         $user = new authController($chat_id, $username, $firstname, $last_name);
@@ -43,15 +41,12 @@
                 showRpc($msg_hash[1], $chat_id);
             }
         }else{
-            $role = getRole($chat_id);
-            switch ($role) {
-                case "Admin":
-                    showRpc("admin", $chat_id);
-                    break;
-                default:
-                    showRpc("main", $chat_id);
-                    break;
+            if (isset($employers[$chat_id])) {
+                $role = $employers[$chat_id];
+            }else{
+                $role = "main";
             }
+            showRpc(strtolower($role), $chat_id);
         }
     });
 

@@ -24,7 +24,7 @@
         }else{
             $role = "Main";
         }
-        return $role;
+        return new $role();
     }
 
     include 'config.php'; // Основной конфиг
