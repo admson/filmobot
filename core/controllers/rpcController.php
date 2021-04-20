@@ -5,15 +5,33 @@
     // $chat_id - чат id аккаунит
     // inline_keyboard,$msg_id,$data($id фильма,категории и т.д) - не обязательные параметры
 
-    class Rpc extends scriptController {
+    function showRcp($hash,$chat_id,$keyboard = false,$msg_id = false,$data = false,$page = 1) {
+        $rcp = new Rcp();
+        $rcp->show($hash,$chat_id,$keyboard,$msg_id,$data,$page);
+    }
 
-        //Берем данные с scriptController
+    class Rpc {
+
+        // Данные которые будут доступны в функциях
+        public $db;
+        public $dbconnection;
+        public $bot;
+        public $lang;
+        public $routes;
+
+        // Конструктор
         public function __construct(){
-            parent::__construct();
+            global $db,$dbconnection,$bot,$lang,$routes;
+
+            $this->db = $db;
+            $this->dbconnection = $dbconnection;
+            $this->bot = $bot;
+            $this->lang = $lang;
+            $this->routes = $routes;
         }
 
         // Отрисовка меню
-        public function show($hash,$chat_id,$keyboard = false,$msg_id = false,$data = false,$page = 1) {
+        public function show($hash,$chat_id,$keyboard = false,$msg_id = false,$data = false,$page = 1,$paginator = false) {
             self::deleteTimeout();
 
             //
@@ -30,7 +48,12 @@
                 $this->db->update("UPDATE accounts SET menu='$hash' WHERE chat_id='$chat_id'");
                 //Чистим историю и создаем новый хеш
                 if (isset($this->routes[$hash]['clean_cache'])) $this->db->delete("DELETE FROM dialogs WHERE chat_id='$chat_id'");
-                $new_state = $this->db->insert("INSERT INTO dialogs(hash,chat_id,menu) VALUES('$state_hash','".$chat_id."','".$hash."')");
+                if (!$paginator) {
+                    $new_state = $this->db->insert("INSERT INTO dialogs(hash,chat_id,menu) VALUES('$state_hash','".$chat_id."','".$hash."')");
+                }else{
+                    $this->db->update("UPDATE dialogs SET page='$page' WHERE id='".$paginator[0]['id']."'");
+                    $new_state = $paginator[0]['id'];
+                }
                 if (isset($data) && $data >= 1 && !isset($this->routes[$hash]['clean_cache'])) $this->db->update("UPDATE dialogs SET data='$data' WHERE id='$new_state'");
 
                 // добавляем клавиатуру
@@ -44,7 +67,12 @@
                 if (isset($this->routes[$hash]['keyboard_func'])) {
                     if (isset($page) && $page > 1) $this->db->update("UPDATE dialogs SET page='$page' WHERE id='$new_state'");
                     $role = getRole($chat_id);
-                    $kbfunc = call_user_func(array($role,$this->routes[$hash]['keyboard_func']),$page,$this->routes[$hash]['keyboard_data']['table'],$this->routes[$hash]['keyboard_data']['callback']);
+                    if (isset($data)) {
+                        $kbfunc = call_user_func(array($role,$this->routes[$hash]['keyboard_func']),$page,$data);
+                    }else{
+                        $kbfunc = call_user_func(array($role,$this->routes[$hash]['keyboard_func']),$page);
+                    }
+
 
                     $kbarray = array_merge($kbarray,$kbfunc);
                 }
@@ -71,10 +99,11 @@
                 if (!empty($breads)) $answer = $breads."\n\n".$this->routes[$hash]['answer'];
 
                 // Отправляем либо редактируем сообщение
-                self::sendMsg($chat_id,$msg_id = false, $answer,$keyboard);
+                self::sendMsg($chat_id,$msg_id, $answer,$keyboard);
             }
         }
 
+        // Отправка либо редактирование сообщения
         public function sendMsg($chat_id,$msg_id = false, $answer,$keyboard) {
             if (isset($msg_id) && $msg_id > 0) {
                 editMessage($this->bot,$chat_id,$msg_id,$answer,$keyboard);

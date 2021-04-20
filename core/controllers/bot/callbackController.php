@@ -75,7 +75,7 @@
             if ($data[0] == "catalog_page" && isset($data[1])) {
                 $data2 = false;
                 if (isset($dialog[0]['data'])) $data2 = $dialog[0]['data'];
-                $this->rpc->show($dialog[0]['menu'],$this->chat_id,false, $this->msg_id,$data2,$data[1]);
+                $this->rpc->show($dialog[0]['menu'],$this->chat_id,false, $this->msg_id,$data2,$data[1],$dialog);
             }
             // Обработка хешей на меню ( с сохраненим параметров id)
             if ($data[0] == "hash" && isset($data[1])) {
@@ -96,7 +96,10 @@
                 }
                 $this->rpc->show($data[1],$this->chat_id,false, $this->msg_id,$data2);
             }
-
+            // Выбор фильма
+            if ($data[0] == "set_category" && isset($data[1])) {
+                $this->rpc->show('films',$this->chat_id,false, $this->msg_id,$data[1],1);
+            }
 
         }
 	}
