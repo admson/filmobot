@@ -14,7 +14,7 @@
 			if ($username) {
 				$this->username = $username;
 			}else{
-				$this->username = "unnamed";
+				$this->username = "No Name";
 			}
 
 			if ($firstname) {
@@ -34,21 +34,21 @@
 		    global $db,$dbconnection;
 
 			if ($this->id < 0) exit();
-			$user_data = $db->select("SELECT * FROM accounts WHERE chat_id='".$this->id."'");
+			$user_data = $db->select("SELECT * FROM _accounts WHERE chat_id='".$this->id."'");
 			if (isset($user_data[0]['id'])) {
 
 				// Update username and first_name and last action
 				if ($user_data[0]['username'] != $this->username) {
-					$db->update("UPDATE accounts SET username='".$this->username."' WHERE chat_id='".$this->id."'");
+					$db->update("UPDATE _accounts SET username='".$this->username."' WHERE chat_id='".$this->id."'");
 				}
 				if ($user_data[0]['first_name'] != $this->firstname) {
-					$db->update("UPDATE accounts SET first_name='".$this->firstname."' WHERE chat_id='".$this->id."'");
+					$db->update("UPDATE _accounts SET first_name='".$this->firstname."' WHERE chat_id='".$this->id."'");
 				}
 				if ($user_data[0]['last_name'] != $this->lastname) {
-					$db->update("UPDATE accounts SET last_name='".$this->lastname."' WHERE chat_id='".$this->id."'");
+					$db->update("UPDATE _accounts SET last_name='".$this->lastname."' WHERE chat_id='".$this->id."'");
 				}
 
-				$db->update("UPDATE accounts SET last_action=NOW() WHERE chat_id='".$this->id."'");
+				$db->update("UPDATE _accounts SET last_action=NOW() WHERE chat_id='".$this->id."'");
 				
 				return $user_data;
 				
@@ -59,7 +59,7 @@
 					$this->firstname = mysqli_real_escape_string($dbconnection,$this->firstname);
 					$this->lastname = mysqli_real_escape_string($dbconnection,$this->lastname);
 
-					$insert_id = $db->insert("INSERT INTO accounts(
+					$insert_id = $db->insert("INSERT INTO _accounts(
 						username,
 						first_name,
 						last_name,
@@ -71,7 +71,7 @@
 						'".$this->id."'
 					)",1);
 
-					$user_data = $db->select("SELECT * FROM accounts WHERE id='".$insert_id."'");
+					$user_data = $db->select("SELECT * FROM _accounts WHERE id='".$insert_id."'");
 					return $user_data;
 				}
 			}

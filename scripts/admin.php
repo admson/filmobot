@@ -66,6 +66,12 @@
             'prev_menu' => "categories",
         ],
 
+        "film" => [
+            'name' => "список фильмов",
+            'view_func' => 'showFilm',
+            'prev_menu' => "films",
+        ],
+
     ];
 
     class Admin extends scriptController {
@@ -113,7 +119,7 @@
                 if (isset($year_val) && isset($name) && count($ctgrs) >= 1) {
                     $new_film = $this->db->insert("INSERT INTO films(text,name,year,categories) VALUES('".mysqli_real_escape_string($this->dbconnection,$data['text'])."','$name','".$year_val."','".json_encode($ctgrs)."')");
                     if (isset($new_film)) {
-                        showRcp("add_film_photo", $data['chat_id'], false, false, $new_film);
+                        showRpc("add_film_photo", $data['chat_id'], false, false, $new_film);
                     }
                 }else{
                     sendMessage($this->bot, $data['chat_id'], $this->lang['wrong_format'], $keyboard);
@@ -129,7 +135,7 @@
                     // Получаем id файла на серверах tg и меняем в фильме
                     $orig_file = $data['photo'][array_key_last($data['photo'])]->getFileId();
                     $this->db->update("UPDATE films SET photo='".$orig_file."' WHERE id='$film_id'");
-                    showRcp("add_film_trailer", $data['chat_id'], false, false, $film_id);
+                    showRpc("add_film_trailer", $data['chat_id'], false, false, $film_id);
                 }else{
                     // Ошибка если что-то не так
                     $kb = [];
@@ -148,7 +154,7 @@
                 if (isset($data['video'])) {
                     $orig_file = $data['video']->getFileId();
                     $this->db->update("UPDATE films SET trailer='$orig_file' WHERE id='$film_id'");
-                    showRcp("add_film_video", $data['chat_id'], false, false, $film_id);
+                    showRpc("add_film_video", $data['chat_id'], false, false, $film_id);
                 }else{
                     $kb = [];
                     array_push($kb, array(array('text'=> $this->lang['back'],'callback_data' => "view.add_film_photo"),array('text'=> $this->lang['cancel'],'callback_data' => "view.admin")));
@@ -172,7 +178,7 @@
                     // Отправка сообщений в каналы
                     self::sendToChats($film_id);
                     // Показываем главное меню
-                    showRcp("admin", $data['chat_id'], false, false, $film_id);
+                    showRpc("admin", $data['chat_id'], false, false, $film_id);
                 }else{
                     $kb = [];
                     array_push($kb, array(array('text'=> $this->lang['back'],'callback_data' => "view.add_film_trailer"),array('text'=> $this->lang['cancel'],'callback_data' => "view.admin")));
@@ -248,5 +254,10 @@
 
             $keyboard = scriptController::getButtons($page,$callback,$num_films,$category_films);
             return $keyboard;
+        }
+
+        //
+        public function showFilm($id,$ctgr) {
+
         }
     }

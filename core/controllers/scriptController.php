@@ -1,6 +1,4 @@
 <?php
-    use Rcp;
-
 	// Абстракный класс под скрипты
 	abstract class scriptController {
 

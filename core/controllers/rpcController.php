@@ -5,9 +5,9 @@
     // $chat_id - чат id аккаунит
     // inline_keyboard,$msg_id,$data($id фильма,категории и т.д) - не обязательные параметры
 
-    function showRcp($hash,$chat_id,$keyboard = false,$msg_id = false,$data = false,$page = 1) {
-        $rcp = new Rcp();
-        $rcp->show($hash,$chat_id,$keyboard,$msg_id,$data,$page);
+    function showRpc($hash,$chat_id,$keyboard = false,$msg_id = false,$data = false,$page = 1) {
+        $rpc = new Rpc();
+        $rpc->show($hash,$chat_id,$keyboard,$msg_id,$data,$page);
     }
 
     class Rpc {
@@ -45,7 +45,7 @@
             if (isset($this->routes[$hash])) {
                 $state_hash = md5($hash.mt_rand(1111,9999));
                 $bot_username = $this->bot->getMe()->getUsername();
-                $this->db->update("UPDATE accounts SET menu='$hash' WHERE chat_id='$chat_id'");
+                $this->db->update("UPDATE _accounts SET menu='$hash' WHERE chat_id='$chat_id'");
                 //Чистим историю и создаем новый хеш
                 if (isset($this->routes[$hash]['clean_cache'])) $this->db->delete("DELETE FROM dialogs WHERE chat_id='$chat_id'");
                 if (!$paginator) {

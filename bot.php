@@ -20,7 +20,7 @@
         $chat_id = $message->getChat()->getId();
 
         // Проверка существует ли аккаунт
-        $is_account = $db->select("SELECT * FROM accounts WHERE chat_id='$chat_id'");
+        $is_account = $db->select("SELECT * FROM _accounts WHERE chat_id='$chat_id'");
         if (!isset($is_account[0]['id'])) {
             $new_account = true;
         }else{
@@ -34,12 +34,7 @@
         $msg_hash = explode(" ", $text);
         #Check hash
         if (isset($msg_hash[1])) {
-            $prefix = substr($msg_hash[1],0,2);
-            if ($prefix == "flm") {
-
-            }else{
-                (new Rpc)->show($msg_hash[1], $chat_id);
-            }
+            (new Rpc)->show($msg_hash[1], $chat_id);
         }else{
             if (isset($employers[$chat_id])) {
                 $role = $employers[$chat_id];
