@@ -34,7 +34,11 @@
 	$db = new DB();
 	$dbconnection = $db->open();
 
+	//Подгрузка фунекий движка
     include 'core/controllers/rpcController.php';
     include 'core/controllers/scriptController.php';
-    include "scripts/admin.php";
-    include "scripts/main.php";
+
+    // Подгрузка скриптов из config.php
+    foreach ($scripts as $scr) {
+        include "scripts/$scr.php";
+    }
