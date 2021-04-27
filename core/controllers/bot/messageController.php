@@ -56,7 +56,7 @@ class messageController
         $this->user_data = $user->authUser();
         // Если заблокирован
         if ($this->user_data[0]['status'] == 2) exit();
-        $dialogs = $db->select("SELECT * FROM dialogs WHERE chat_id='".$this->chat_id."' ORDER BY created_at DESC LIMIT 1");
+        $_dialogs = $db->select("SELECT * FROM _dialogs WHERE chat_id='".$this->chat_id."' ORDER BY created_at DESC LIMIT 1");
 
         // запоминаем данные и передаем в функцию
         $data = [
@@ -66,7 +66,7 @@ class messageController
             'video' => $this->video,
         ];
 
-        if (isset($dialogs[0]['id'])) $data['dialog'] = $dialogs[0];
+        if (isset($_dialogs[0]['id'])) $data['dialog'] = $_dialogs[0];
 
         $role = getRole($this->chat_id);
         call_user_func(array($role,$routes[$this->user_data[0]['menu']]['message']),$data);

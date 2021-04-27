@@ -36,7 +36,7 @@
 
             //
             if (!isset($this->routes[$hash])) {
-                $find_hash = $this->db->select("SELECT * FROM dialogs WHERE hash='$hash'");
+                $find_hash = $this->db->select("SELECT * FROM _dialogs WHERE hash='$hash'");
                 if (isset($find_hash[0]['id'])) {
                     $hash = $find_hash[0]['menu'];
                     $data = $find_hash[0]['data'];
@@ -47,14 +47,14 @@
                 $bot_username = $this->bot->getMe()->getUsername();
                 $this->db->update("UPDATE _accounts SET menu='$hash' WHERE chat_id='$chat_id'");
                 //Чистим историю и создаем новый хеш
-                if (isset($this->routes[$hash]['clean_cache'])) $this->db->delete("DELETE FROM dialogs WHERE chat_id='$chat_id'");
+                if (isset($this->routes[$hash]['clean_cache'])) $this->db->delete("DELETE FROM _dialogs WHERE chat_id='$chat_id'");
                 if (!$paginator) {
-                    $new_state = $this->db->insert("INSERT INTO dialogs(hash,chat_id,menu) VALUES('$state_hash','".$chat_id."','".$hash."')");
+                    $new_state = $this->db->insert("INSERT INTO _dialogs(hash,chat_id,menu) VALUES('$state_hash','".$chat_id."','".$hash."')");
                 }else{
-                    $this->db->update("UPDATE dialogs SET page='$page' WHERE id='".$paginator[0]['id']."'");
+                    $this->db->update("UPDATE _dialogs SET page='$page' WHERE id='".$paginator[0]['id']."'");
                     $new_state = $paginator[0]['id'];
                 }
-                if (isset($data) && $data >= 1 && !isset($this->routes[$hash]['clean_cache'])) $this->db->update("UPDATE dialogs SET data='$data' WHERE id='$new_state'");
+                if (isset($data) && $data >= 1 && !isset($this->routes[$hash]['clean_cache'])) $this->db->update("UPDATE _dialogs SET data='$data' WHERE id='$new_state'");
 
                 // добавляем клавиатуру
                 if (isset($this->routes[$hash]['inline_keyboard'])) {
@@ -65,7 +65,7 @@
 
                 //Добавляем клавиатуру из функции
                 if (isset($this->routes[$hash]['keyboard_func'])) {
-                    if (isset($page) && $page > 1) $this->db->update("UPDATE dialogs SET page='$page' WHERE id='$new_state'");
+                    if (isset($page) && $page > 1) $this->db->update("UPDATE _dialogs SET page='$page' WHERE id='$new_state'");
                     $role = getRole($chat_id);
                     if (isset($data)) {
                         $kbfunc = call_user_func(array($role,$this->routes[$hash]['keyboard_func']),$page,$data);
@@ -80,8 +80,8 @@
                 // Хлебные крошки и кнопки Назад, отмена
                 $breads = "";
                 if (!isset($this->routes[$hash]['clean_cache'])) {
-                    $dialogs_bread = $this->db->select("SELECT * FROM dialogs WHERE chat_id='$chat_id' ORDER BY created_at");
-                    foreach ($dialogs_bread as $state) {
+                    $_dialogs_bread = $this->db->select("SELECT * FROM _dialogs WHERE chat_id='$chat_id' ORDER BY created_at");
+                    foreach ($_dialogs_bread as $state) {
                         if (isset($this->routes[$state['menu']]) && !isset($this->routes[$state['menu']]['clean_cache'])) $breads.= "<i>/<a href='https://t.me/".$bot_username."?start=".$state['hash']."'>".$this->routes[$state['menu']]['name']."</a></i>";
                     }
                 }
@@ -117,7 +117,7 @@
             // Удаление активностей, историю пользователя
             $now_time = new DateTime('now');
             $now_time->modify("-".SESSION_TIMEOUT." minutes");
-            $this->db->delete("DELETE FROM dialogs WHERE created_at <= '".$now_time->format('Y-m-d H:i:s')."'");
+            $this->db->delete("DELETE FROM _dialogs WHERE created_at <= '".$now_time->format('Y-m-d H:i:s')."'");
             // Удаление фильмов по таймауту
             $now_time = new DateTime('now');
             $now_time->modify("-".FILM_TIMEOUT." minutes");

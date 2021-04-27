@@ -56,6 +56,7 @@
             'name' => "список категорий",
             'answer' => $lang['choose_categories'],
             'keyboard_func' => "getCategories",
+            'callback_menu' => "films", // Меню после нажатия кнопки (id)
             'prev_menu' => "admin",
         ],
 
@@ -228,36 +229,37 @@
 
         //Получение категорий для удаления фильмов
         public function getCategories($page, $data = false) {
-            $callback = "set_category"; // каллбек в кнопках для выбора
-            $count = $this->db->count("SELECT COUNT(1) FROM categories");
-            $content = $this->db->select("SELECT * FROM categories");
-
-            $keyboard = scriptController::getButtons($page,$callback,$count,$content);
+            $content = $this->db->select("SELECT * FROM categories"); // Получаем категории
+            $keyboard = scriptController::getButtons($page,$content); // Показываем кнопки
             return $keyboard;
         }
 
         //Получение фильмов
         public function getFilms($page,$ctgr_id = false) {
-            $callback = "select_film"; // каллбек в кнопках для выбора
             $content = $this->db->select("SELECT * FROM films");
-            $num_films = 0;
-            $category_films = [];
-            foreach ($content as $film) {
+            $films = self::filterByCategory($content,$ctgr_id);
+            $keyboard = scriptController::getButtons($page,$films);
+            return $keyboard;
+        }
+
+        // Функция фильтрации фильмов в зависимости от категории
+        public function filterByCategory($array,$id) {
+            $content = [];
+            foreach ($array as $film) {
                 $categories = json_decode($film['categories']);
                 foreach ($categories as $ctgr) {
-                    if (intval($ctgr_id) == intval($ctgr)) {
-                        $num_films++;
-                        array_push($category_films,$film);
+                    if (intval($id) == intval($ctgr)) {
+                        array_push($content,$film);
                     }
                 }
             }
-
-            $keyboard = scriptController::getButtons($page,$callback,$num_films,$category_films);
-            return $keyboard;
+            return $content;
         }
 
         //
         public function showFilm($id,$ctgr) {
 
         }
+
+
     }

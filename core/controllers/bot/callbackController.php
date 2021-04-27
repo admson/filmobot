@@ -19,15 +19,18 @@
 		public $firstname;
 		public $user_data;
 		public $rpc;
+		public $routes;
 
 		function __construct($bot,$db,$dbconnection,$Callback,$lang)
 		{
+		    global $routes;
 			$this->bot = $bot;
             $this->db = $db;
             $this->dbconnection = $dbconnection;
 			$this->Callback = $Callback;
 			$this->Message = $Callback->getMessage();
 			$this->lang = $lang;
+			$this->routes = $routes;
 
             // set user_data
             $this->firstname = $this->Message->getChat()->getFirstName();
@@ -64,7 +67,7 @@
         {
             $query = $this->Callback->getData();
             $data = explode(".", $query);
-            $dialog = $this->db->select("SELECT * FROM dialogs WHERE chat_id='".$this->chat_id."' ORDER BY created_at DESC LIMIT 1");
+            $dialog = $this->db->select("SELECT * FROM _dialogs WHERE chat_id='".$this->chat_id."' ORDER BY created_at DESC LIMIT 1");
 
             // Обработка каллбеков для перекидывания сразу на меню ( с сохраненим параметров id)
             if ($data[0] == "view" && isset($data[1])) {
@@ -79,7 +82,7 @@
             }
             // Обработка хешей на меню ( с сохраненим параметров id)
             if ($data[0] == "hash" && isset($data[1])) {
-                $hash = $this->db->select("SELECT * FROM dialogs WHERE id='".$data[1]."'");
+                $hash = $this->db->select("SELECT * FROM _dialogs WHERE id='".$data[1]."'");
                 if (isset($hash[0]['id'])) {
                     $data3 = false;
                     if (isset($dialog[0]['data'])) $data3 = $hash[0]['data'];
@@ -88,17 +91,19 @@
             }
             // предыдущая страница
             if ($data[0] == "prew" && isset($data[1])) {
-                $dialog = $this->db->select("SELECT * FROM dialogs WHERE chat_id='".$this->chat_id."' ORDER BY created_at DESC LIMIT 2");
+                $dialog = $this->db->select("SELECT * FROM _dialogs WHERE chat_id='".$this->chat_id."' ORDER BY created_at DESC LIMIT 2");
                 $data2 = false;
                 if (isset($dialog[0]['data'])) $data2 = $dialog[0]['data'];
+                $page = 1;
+                if (isset($dialog[1]['page'])) $page = $dialog[1]['page'];
                 foreach ($dialog as $diag) {
-                    $this->db->delete("DELETE FROM dialogs WHERE id='".$diag['id']."'");
+                    $this->db->delete("DELETE FROM _dialogs WHERE id='".$diag['id']."'");
                 }
-                $this->rpc->show($data[1],$this->chat_id,false, $this->msg_id,$data2);
+                $this->rpc->show($data[1],$this->chat_id,false, $this->msg_id,$data2,$page);
             }
-            // Выбор фильма
-            if ($data[0] == "set_category" && isset($data[1])) {
-                $this->rpc->show('films',$this->chat_id,false, $this->msg_id,$data[1],1);
+            // Выбор фильмов, категорий, чего угодно
+            if ($data[0] == "select" && isset($data[1])) {
+                $this->rpc->show($this->routes[$dialog[0]['menu']]['callback_menu'],$this->chat_id,false, $this->msg_id,$data[1],1);
             }
 
         }

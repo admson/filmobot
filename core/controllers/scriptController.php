@@ -48,9 +48,10 @@
         }
 
         //Получение кнопок с пагинацией
-        public function getButtons($page,$callback,$count,$content) {
+        public function getButtons($page,$content) {
             // Пагинатор
             $per_page = PER_PAGE;
+            $count = count($content);
             $total = intval(($count - 1) / $per_page) + 1;
             if(empty($page) or $page < 0) $page = 1;
             if($page > $total) $page = $total;
@@ -60,7 +61,7 @@
             $main_array = [];
 
             foreach ($content as $cont) {
-                array_push($main_array, array(array('text'=>$cont['name'],'callback_data' => $callback.".".$cont['id'])));
+                array_push($main_array, array(array('text'=>$cont['name'],'callback_data' => "select.".$cont['id'])));
             }
 
             if ($count > PER_PAGE) {
