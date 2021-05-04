@@ -99,6 +99,7 @@
                 foreach ($dialog as $diag) {
                     $this->db->delete("DELETE FROM _dialogs WHERE id='".$diag['id']."'");
                 }
+                if (isset($this->routes[$dialog[0]['menu']]['view_func'])) $this->msg_id = false;
                 $this->rpc->show($data[1],$this->chat_id,false, $this->msg_id,$data2,$page);
             }
             // Выбор фильмов, категорий, чего угодно

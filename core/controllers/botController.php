@@ -90,6 +90,15 @@ function sendDocument($bot,$chat_id,$file_id,$caption,$replyMarkup = null, $disa
     }
 }
 
+function sendMediaGroup($bot,$chat_id,$media,$disableNotification = false) {
+    $replyToMessageId = null;
+    try {
+        return $bot->sendMediaGroup($chat_id,$media,$disableNotification,$replyToMessageId);
+    } catch (TelegramBot\Api\HttpException $e) {
+        return false;
+    }
+}
+
 
 function editMessageCaption($bot,$chat_id,$msg_id,$caption,$keyboard = null) {
     try {

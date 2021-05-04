@@ -35,7 +35,7 @@
         public function createMediaGroup($film) {
             $media = new \TelegramBot\Api\Types\InputMedia\ArrayOfInputMedia();
             if (isset($film[0]['photo'])) {
-                $media->addItem(new TelegramBot\Api\Types\InputMedia\InputMediaPhoto($film[0]['photo'],$film[0]['text']));
+                $media->addItem(new TelegramBot\Api\Types\InputMedia\InputMediaPhoto($film[0]['photo'],$film[0]['text'],"html"));
             }
             if (isset($film[0]['trailer'])) {
                 $media->addItem(new TelegramBot\Api\Types\InputMedia\InputMediaVideo($film[0]['trailer']));
@@ -51,6 +51,7 @@
         public function getButtons($page,$content) {
             // Пагинатор
             $per_page = PER_PAGE;
+            $per_page_col = PER_PAGE_COL;
             $count = count($content);
             $total = intval(($count - 1) / $per_page) + 1;
             if(empty($page) or $page < 0) $page = 1;
@@ -61,8 +62,11 @@
             $main_array = [];
 
             foreach ($content as $cont) {
-                array_push($main_array, array(array('text'=>$cont['name'],'callback_data' => "select.".$cont['id'])));
+                array_push($main_array, array('text'=>$cont['name'],'callback_data' => "select.".$cont['id']));
             }
+
+            // Разбиваем на колонки
+            $main_array = array_chunk($main_array,$per_page_col);
 
             if ($count > PER_PAGE) {
                 $paginator = [];

@@ -33,7 +33,6 @@
         // Отрисовка меню
         public function show($hash,$chat_id,$keyboard = false,$msg_id = false,$data = false,$page = 1,$paginator = false) {
             self::deleteTimeout();
-
             //
             if (!isset($this->routes[$hash])) {
                 $find_hash = $this->db->select("SELECT * FROM _dialogs WHERE hash='$hash'");
@@ -95,11 +94,18 @@
                 $keyboard = new \TelegramBot\Api\Types\Inline\InlineKeyboardMarkup($kbarray);
 
                 // создаем ответ
-                $answer = $this->routes[$hash]['answer'];
-                if (!empty($breads)) $answer = $breads."\n\n".$this->routes[$hash]['answer'];
+                if (isset($this->routes[$hash]['answer'])) {
+                    $answer = $this->routes[$hash]['answer'];
+                    if (!empty($breads)) $answer = $breads . "\n\n" . $this->routes[$hash]['answer'];
+                }
 
                 // Отправляем либо редактируем сообщение
-                self::sendMsg($chat_id,$msg_id, $answer,$keyboard);
+                if (!isset($this->routes[$hash]['view_func'])) {
+                    self::sendMsg($chat_id, $msg_id, $answer, $keyboard);
+                }else{
+                    $role = getRole($chat_id);
+                    call_user_func(array($role,$this->routes[$hash]['view_func']),$data,$chat_id,$breads,$keyboard);
+                }
             }
         }
 

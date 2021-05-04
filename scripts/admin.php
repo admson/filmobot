@@ -5,7 +5,7 @@
     // inline_keyboard = клавиатура, clean_cache (очистка предыдущих действий)
     // message = Функция обработки сообщения
     // keyboard_func = функция для обработки клавиатуры в сюжете
-    // keyboard_table = таблица для функции калвиатуры
+    // callback_menu = используется в getbuttons перекидывает на меню из каталога
     $routes = [
         "admin" => [
             'name' => "админка",
@@ -64,12 +64,13 @@
             'name' => "список фильмов",
             'answer' => $lang['choose_film'],
             'keyboard_func' => "getFilms",
+            'callback_menu' => "film", // getFilms перекинет на film
             'prev_menu' => "categories",
         ],
 
         "film" => [
-            'name' => "список фильмов",
-            'view_func' => 'showFilm',
+            'name' => "карточка фильма",
+            'view_func' => 'showFilm', // Функция вывода фильма
             'prev_menu' => "films",
         ],
 
@@ -256,9 +257,25 @@
             return $content;
         }
 
-        //
-        public function showFilm($id,$ctgr) {
+        // Функция показа фильма
+        public function showFilm($id,$chat_id,$breads,$keyboard) {
+            // Получаем фильм
+            $film = $this->db->select("SELECT * FROM films WHERE id='$id'");
+            // Добавляем ссылку посмотреть
+            $bot_username = $this->bot->getMe()->getUsername();
+            $film[0]['text'] = substr($film[0]['text'], 0,880);
+            $film[0]['text'].= "...";
+            $film[0]['text'].= "\n<a href='https://t.me/".$bot_username."?start=".$film[0]['hash']."'>".$this->lang['show_film_button']."</a>";
 
+            // Отправляем медиа
+            $media = parent::createMediaGroup($film);
+            sendMediaGroup($this->bot,$chat_id,$media);
+
+            //Хлебные крошки
+            $answer = $breads."\n\n".$film[0]['name']." (".$film[0]['year'].")";
+
+            //Отправляем ролик с кнопками
+            sendVideo($this->bot,$chat_id,$film[0]['video'],$answer,$keyboard);
         }
 
 
