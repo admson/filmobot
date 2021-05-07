@@ -30,7 +30,6 @@
 			$this->Callback = $Callback;
 			$this->Message = $Callback->getMessage();
 			$this->lang = $lang;
-			$this->routes = $routes;
 
             // set user_data
             $this->firstname = $this->Message->getChat()->getFirstName();
@@ -40,6 +39,7 @@
             $this->lng = $this->Message->getFrom()->getLanguageCode();
             $this->msg_id = $this->Message->getMessageId();
             $this->rpc = new Rpc();
+            $this->routes = $routes[getRole($this->chat_id,true)];
 
             $user = new authController($this->chat_id, $this->username, $this->firstname, $this->lastname);
             $this->user_data = $user->authUser();
@@ -105,6 +105,21 @@
             // Выбор фильмов, категорий, чего угодно
             if ($data[0] == "select" && isset($data[1])) {
                 $this->rpc->show($this->routes[$dialog[0]['menu']]['callback_menu'],$this->chat_id,false, $this->msg_id,$data[1],1);
+            }
+            // Кнопка удаления
+            if ($data[0] == "delete" && isset($data[1]) && isset($data[2])) {
+                $dialog = $this->db->select("SELECT * FROM _dialogs WHERE chat_id='".$this->chat_id."' ORDER BY created_at DESC LIMIT 2");
+                $page = 1;
+                if (isset($dialog[1]['page'])) $page = $dialog[1]['page'];
+                $data2 = false;
+                if (isset($dialog[0]['data'])) $data2 = $dialog[0]['data'];
+                foreach ($dialog as $diag) {
+                    $this->db->delete("DELETE FROM _dialogs WHERE id='".$diag['id']."'");
+                }
+                $this->db->delete("DELETE FROM ".$data[1]." WHERE id='".$data[2]."'");
+                if (isset($this->routes[$dialog[0]['menu']]['view_func'])) $this->msg_id = false;
+                $this->rpc->show($dialog[1]['menu'],$this->chat_id,false, $this->msg_id,$data2,$page);
+//                sendMessage($this->bot,$this->chat_id,"DELETE FROM ".$data[1]." WHERE id=".$data[2]);
             }
 
         }

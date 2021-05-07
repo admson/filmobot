@@ -32,6 +32,9 @@
 
         // Отрисовка меню
         public function show($hash,$chat_id,$keyboard = false,$msg_id = false,$data = false,$page = 1,$paginator = false) {
+            $role = getRole($chat_id,true);
+            $this->routes = $this->routes[$role];
+            dumpData($this->routes);
             self::deleteTimeout();
             //
             if (!isset($this->routes[$hash])) {
@@ -46,7 +49,7 @@
                 $bot_username = $this->bot->getMe()->getUsername();
                 $this->db->update("UPDATE _accounts SET menu='$hash' WHERE chat_id='$chat_id'");
                 //Чистим историю и создаем новый хеш
-                if (isset($this->routes[$hash]['clean_cache'])) $this->db->delete("DELETE FROM _dialogs WHERE chat_id='$chat_id'");
+                if (isset($this->routes[$hash]['clean_cache']) && !$paginator) $this->db->delete("DELETE FROM _dialogs WHERE chat_id='$chat_id'");
                 if (!$paginator) {
                     $new_state = $this->db->insert("INSERT INTO _dialogs(hash,chat_id,menu) VALUES('$state_hash','".$chat_id."','".$hash."')");
                 }else{
@@ -71,12 +74,15 @@
                     }else{
                         $kbfunc = call_user_func(array($role,$this->routes[$hash]['keyboard_func']),$page);
                     }
-
-
                     $kbarray = array_merge($kbarray,$kbfunc);
                 }
 
-                // Хлебные крошки и кнопки Назад, отмена
+                //Кнопки удаления
+                if (isset($this->routes[$hash]['delete_btn'])) {
+                    array_push($kbarray, array(array('text'=> $this->lang['delete'],'callback_data' => "delete.".$this->routes[$hash]['delete_btn'].".".$data)));
+                }
+
+                // Хлебные крошки
                 $breads = "";
                 if (!isset($this->routes[$hash]['clean_cache'])) {
                     $_dialogs_bread = $this->db->select("SELECT * FROM _dialogs WHERE chat_id='$chat_id' ORDER BY created_at");

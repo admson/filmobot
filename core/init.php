@@ -17,14 +17,18 @@
     }
 
     // Get Role
-    function getRole($chat_id) {
+    function getRole($chat_id,$string = false) {
         global $employers;
         if (isset($employers[$chat_id])) {
             $role = $employers[$chat_id];
         }else{
             $role = "Main";
         }
-        return new $role();
+        if (!$string) {
+            return new $role();
+        }else{
+            return strtolower($role);
+        }
     }
 
     include 'config.php'; // Основной конфиг
@@ -33,6 +37,7 @@
 	//Подключаем Базу Данных
 	$db = new DB();
 	$dbconnection = $db->open();
+	$routes = [];
 
 	//Подгрузка фунекий движка
     include 'core/controllers/rpcController.php';

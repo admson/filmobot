@@ -6,7 +6,7 @@
     // message = Функция обработки сообщения
     // keyboard_func = функция для обработки клавиатуры в сюжете
     // callback_menu = используется в getbuttons перекидывает на меню из каталога
-    $routes = [
+    $routes['admin'] = [
         "admin" => [
             'name' => "админка",
             'answer' => $lang['admin_answer'],
@@ -72,6 +72,7 @@
             'name' => "карточка фильма",
             'view_func' => 'showFilm', // Функция вывода фильма
             'prev_menu' => "films",
+            'delete_btn' => "films" // Создает кнопку удаления которая удалит из таблицы films (можно добавить в любое меню)
         ],
 
     ];

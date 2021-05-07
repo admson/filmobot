@@ -3,6 +3,7 @@
 
     $lang = [
             # main buttons
+            "delete" => "Удалить",
             "back" => "< Назад",
             "cancel" => "<< Отмена",
             "skip" => "Пропустить",

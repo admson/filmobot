@@ -29,7 +29,7 @@ class messageController
 
     function __construct($bot, $db, $dbconnection, $Message, $lang)
     {
-        global $routes,$emploers;
+        global $routes;
         $this->db = $db;
         $this->dbconnection = $dbconnection;
         $this->bot = $bot;
@@ -69,7 +69,7 @@ class messageController
         if (isset($_dialogs[0]['id'])) $data['dialog'] = $_dialogs[0];
 
         $role = getRole($this->chat_id);
-        call_user_func(array($role,$routes[$this->user_data[0]['menu']]['message']),$data);
+        call_user_func(array($role,$routes[getRole($this->chat_id,true)][$this->user_data[0]['menu']]['message']),$data);
 
     }
 
