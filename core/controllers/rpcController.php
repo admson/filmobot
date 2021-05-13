@@ -19,6 +19,9 @@
         public $lang;
         public $routes;
 
+        // Некоторые переменные
+        public $new_state;
+
         // Конструктор
         public function __construct(){
             global $db,$dbconnection,$bot,$lang,$routes;
@@ -57,46 +60,21 @@
 
             if (isset($route)) {
                 $state_hash = md5($hash.mt_rand(1111,9999)); // Получаем новый хеш
-                $bot_username = $this->bot->getMe()->getUsername();
                 $this->db->update("UPDATE _accounts SET menu='$hash' WHERE chat_id='$chat_id'");
+                $bot_username = $this->bot->getMe()->getUsername();
                 //Чистим историю и создаем новый хеш
                 if (isset($route['clean_cache']) && !$paginator) $this->db->delete("DELETE FROM _dialogs WHERE chat_id='$chat_id'");
                 if (!$paginator) {
-                    $new_state = $this->db->insert("INSERT INTO _dialogs(hash,chat_id,menu) VALUES('$state_hash','".$chat_id."','".$hash."')");
+                    $this->new_state = $this->db->insert("INSERT INTO _dialogs(hash,chat_id,menu) VALUES('$state_hash','".$chat_id."','".$hash."')");
                 }else{
                     $this->db->update("UPDATE _dialogs SET page='$page' WHERE id='".$paginator[0]['id']."'");
-                    $new_state = $paginator[0]['id'];
+                    $this->new_state = $paginator[0]['id'];
                 }
-                if (isset($data) && $data >= 1 && !isset($route['clean_cache'])) $this->db->update("UPDATE _dialogs SET data='$data' WHERE id='$new_state'");
+                if (isset($data) && $data >= 1 && !isset($route['clean_cache'])) $this->db->update("UPDATE _dialogs SET data='$data' WHERE id='$this->new_state'");
 
-                // добавляем клавиатуру
-                if (isset($route['inline_keyboard'])) {
-                    $kbarray = $route['inline_keyboard'];
-                }else{
-                    $kbarray = [];
-                }
-
-                //Добавляем клавиатуру из функции
-                if (isset($route['keyboard_func'])) {
-                    if (isset($page) && $page > 1) $this->db->update("UPDATE _dialogs SET page='$page' WHERE id='$new_state'");
-                    $role = getRole($chat_id);
-                    if (isset($data)) {
-                        $kbfunc = call_user_func(array($role,$route['keyboard_func']),$page,$data);
-                    }else{
-                        $kbfunc = call_user_func(array($role,$route['keyboard_func']),$page);
-                    }
-                    $kbarray = array_merge($kbarray,$kbfunc);
-                }
-
-                //Кнопки удаления
-                if (isset($route['delete_btn'])) {
-                    array_push($kbarray, array(array('text'=> $this->lang['delete'],'callback_data' => "delete.".$route['delete_btn'].".".$data)));
-                }
-
-                //Реакции
-                if (isset($route['reactions'])) {
-                    array_push($kbarray, array(array('text'=> $this->lang['like'],'callback_data' => "like.".$data),array('text'=> $this->lang['dislike'],'callback_data' => "dislike.".$data)));
-                }
+                // Добавляем клавиатуру
+                $kbarray = $this->createMarkup($chat_id,$route,$data,$page);
+                $keyboard = new \TelegramBot\Api\Types\Inline\InlineKeyboardMarkup($kbarray);
 
                 // Хлебные крошки
                 $breads = "";
@@ -106,14 +84,6 @@
                         if (isset($this->routes[$state['menu']]) && !isset($this->routes[$state['menu']]['clean_cache'])) $breads.= "<i>/<a href='https://t.me/".$bot_username."?start=".$state['hash']."'>".$this->routes[$state['menu']]['name']."</a></i>";
                     }
                 }
-
-                // Назад и отмена
-                if (!isset($route['clean_cache'])) {
-                    $prev_menu = $route['prev_menu'];
-                    array_push($kbarray, array(array('text'=> $this->lang['back'],'callback_data' => "prew.".$prev_menu),array('text'=> $this->lang['cancel'],'callback_data' => "view.".$role_s)));
-                }
-
-                $keyboard = new \TelegramBot\Api\Types\Inline\InlineKeyboardMarkup($kbarray);
 
                 // создаем ответ
                 if (isset($route['answer'])) {
@@ -129,6 +99,47 @@
                     call_user_func(array($role,$route['view_func']),$data,$chat_id,$breads,$keyboard);
                 }
             }
+        }
+
+        // Create Keyboard
+        public function createMarkup($chat_id,$route,$data,$page) {
+            $role_s = getRole($chat_id,true);
+            //Клавиатура из routes
+            if (isset($route['inline_keyboard'])) {
+                $kbarray = $route['inline_keyboard'];
+            }else{
+                $kbarray = [];
+            }
+
+            //Добавляем клавиатуру из функции
+            if (isset($route['keyboard_func'])) {
+                if (isset($page) && $page > 1) $this->db->update("UPDATE _dialogs SET page='$page' WHERE id='$this->new_state'");
+                $role = getRole($chat_id);
+                if (isset($data)) {
+                    $kbfunc = call_user_func(array($role,$route['keyboard_func']),$page,$data);
+                }else{
+                    $kbfunc = call_user_func(array($role,$route['keyboard_func']),$page);
+                }
+                $kbarray = array_merge($kbarray,$kbfunc);
+            }
+
+            //Кнопки удаления
+            if (isset($route['delete_btn'])) {
+                array_push($kbarray, array(array('text'=> $this->lang['delete'],'callback_data' => "delete.".$route['delete_btn'].".".$data)));
+            }
+
+            //Реакции
+            if (isset($route['reactions'])) {
+                array_push($kbarray, array(array('text'=> $this->lang['like'],'callback_data' => "like.".$data),array('text'=> $this->lang['dislike'],'callback_data' => "dislike.".$data)));
+            }
+
+            // Назад и отмена
+            if (!isset($route['clean_cache'])) {
+                $prev_menu = $route['prev_menu'];
+                array_push($kbarray, array(array('text'=> $this->lang['back'],'callback_data' => "prew.".$prev_menu),array('text'=> $this->lang['cancel'],'callback_data' => "view.".$role_s)));
+            }
+
+            return $kbarray;
         }
 
         // Отправка либо редактирование сообщения

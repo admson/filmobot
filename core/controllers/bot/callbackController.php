@@ -93,7 +93,7 @@
             if ($data[0] == "prew" && isset($data[1])) {
                 $dialog = $this->db->select("SELECT * FROM _dialogs WHERE chat_id='".$this->chat_id."' ORDER BY created_at DESC LIMIT 2");
                 $data2 = false;
-                if (isset($dialog[0]['data'])) $data2 = $dialog[0]['data'];
+                if (isset($dialog[1]['data'])) $data2 = $dialog[1]['data'];
                 $page = 1;
                 if (isset($dialog[1]['page'])) $page = $dialog[1]['page'];
                 foreach ($dialog as $diag) {
