@@ -30,14 +30,13 @@
             $this->dbconnection = $dbconnection;
             $this->bot = $bot;
             $this->lang = $lang;
-            $this->routes = $routes;
         }
 
         // Edit Markup (редактирование клавиатуры)
         public function updateMarkup($hash,$chat_id,$keyboard = false,$msg_id = false,$data = false,$page = 1,$paginator = false)
         {
-            $role_s = getRole($chat_id,true);
-            $this->routes = $this->routes[$role_s];
+            $role = getRole($chat_id);
+            $this->routes = $role->routes;
             $route = $this->routes[$hash];
             $kbarray = $this->createMarkup($chat_id,$route,$data,$page);
             $keyboard = new \TelegramBot\Api\Types\Inline\InlineKeyboardMarkup($kbarray);
@@ -47,8 +46,8 @@
         // Отрисовка меню
         public function show($hash,$chat_id,$keyboard = false,$msg_id = false,$data = false,$page = 1,$paginator = false) {
             //Поиск хеша и определенеие роли человека
-            $role_s = getRole($chat_id,true);
-            $this->routes = $this->routes[$role_s];
+            $role = getRole($chat_id);
+            $this->routes = $role->routes;
 
             if (!isset($this->routes[$hash])) {
                 $find_hash = $this->db->select("SELECT * FROM _dialogs WHERE hash='$hash'");

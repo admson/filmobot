@@ -69,7 +69,8 @@ class messageController
         if (isset($_dialogs[0]['id'])) $data['dialog'] = $_dialogs[0];
 
         $role = getRole($this->chat_id);
-        call_user_func(array($role,$routes[getRole($this->chat_id,true)][$this->user_data[0]['menu']]['message']),$data);
+        $routes = $role->routes;
+        call_user_func(array($role,$routes[$this->user_data[0]['menu']]['message']),$data);
 
     }
 

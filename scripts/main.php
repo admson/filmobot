@@ -1,30 +1,4 @@
 <?php
-    $routes['main'] = [
-        "main" => [
-            'name' => "список категорий",
-            'answer' => $lang['choose_categories'],
-            'keyboard_func' => "getCategories",
-            'callback_menu' => "films", // Меню после нажатия кнопки (id)
-            'clean_cache' => true,
-            'prev_menu' => false,
-        ],
-
-        "films" => [
-            'name' => "список фильмов",
-            'answer' => $lang['choose_film'],
-            'keyboard_func' => "getFilms",
-            'callback_menu' => "film", // getFilms перекинет на film
-            'prev_menu' => "main",
-        ],
-
-        "film" => [
-            'name' => "",
-            'view_func' => 'showFilm', // Функция вывода фильма
-            'prev_menu' => "films",
-            'reactions' => true
-        ],
-    ];
-
     class Main extends scriptController
     {
         // Берем данные с scriptController
@@ -32,6 +6,33 @@
         public function __construct()
         {
             parent::__construct();
+
+            // Диалоги сюжета
+            $this->routes = [
+                "main" => [
+                    'name' => "список категорий",
+                    'answer' => $this->lang['choose_categories'],
+                    'keyboard_func' => "getCategories",
+                    'callback_menu' => "films", // Меню после нажатия кнопки (id)
+                    'clean_cache' => true,
+                    'prev_menu' => false,
+                ],
+
+                "films" => [
+                    'name' => "список фильмов",
+                    'answer' => $this->lang['choose_film'],
+                    'keyboard_func' => "getFilms",
+                    'callback_menu' => "film", // getFilms перекинет на film
+                    'prev_menu' => "main",
+                ],
+
+                "film" => [
+                    'name' => "",
+                    'view_func' => 'showFilm', // Функция вывода фильма
+                    'prev_menu' => "films",
+                    'reactions' => true
+                ],
+            ];
         }
 
         //Показ категорий к фильмам

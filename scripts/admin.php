@@ -6,82 +6,83 @@
     // message = Функция обработки сообщения
     // keyboard_func = функция для обработки клавиатуры в сюжете
     // callback_menu = используется в getbuttons перекидывает на меню из каталога
-    $routes['admin'] = [
-        "admin" => [
-            'name' => "админка",
-            'answer' => $lang['admin_answer'],
-            'inline_keyboard' => [
-                array(array('text'=> $lang['add_film'],'callback_data' => "view.add_film_text")),
-                array(array('text'=> $lang['del_film'],'callback_data' => "view.categories")),
-            ],
-            'clean_cache' => true,
-            'prev_menu' => false,
-        ],
-
-        "add_film_text" => [
-            'name' => "добавить_текст",
-            'answer' => $lang['add_film_answer'],
-            'message' => "addFilmText",
-            'prev_menu' => "admin",
-        ],
-
-        "add_film_photo" => [
-            'name' => "добавить_фото",
-            'answer' => $lang['add_film_photo_answer'],
-            'inline_keyboard' => [
-                array(array('text'=> $lang['skip'],'callback_data' => "view.add_film_trailer")),
-            ],
-            'message' => "addFilmPhoto",
-            'prev_menu' => "add_film_text",
-        ],
-
-        "add_film_trailer" => [
-            'name' => "добавить_трейлер",
-            'answer' => $lang['add_film_trailer_answer'],
-            'inline_keyboard' => [
-                array(array('text'=> $lang['skip'],'callback_data' => "view.add_film_video")),
-            ],
-            'message' => "addFilmTrailer",
-            'prev_menu' => "add_film_photo",
-        ],
-
-        "add_film_video" => [
-            'name' => "добавить_фильм",
-            'answer' => $lang['add_film_video_answer'],
-            'message' => "addFilmVideo",
-            'prev_menu' => "add_film_trailer",
-        ],
-
-        "categories" => [
-            'name' => "список категорий",
-            'answer' => $lang['choose_categories'],
-            'keyboard_func' => "getCategories",
-            'callback_menu' => "films", // Меню после нажатия кнопки (id)
-            'prev_menu' => "admin",
-        ],
-
-        "films" => [
-            'name' => "список фильмов",
-            'answer' => $lang['choose_film'],
-            'keyboard_func' => "getFilms",
-            'callback_menu' => "film", // getFilms перекинет на film
-            'prev_menu' => "categories",
-        ],
-
-        "film" => [
-            'name' => "карточка фильма",
-            'view_func' => 'showFilm', // Функция вывода фильма
-            'prev_menu' => "films",
-            'delete_btn' => "films" // Создает кнопку удаления которая удалит из таблицы films (можно добавить в любое меню)
-        ],
-
-    ];
 
     class Admin extends scriptController {
         // Берем данные с scriptController
         // $this->bot - бот, $this->db - база данных, $this->lang - язык
         public function __construct(){
             parent::__construct();
+
+            $this->routes = [
+                "admin" => [
+                    'name' => "админка",
+                    'answer' => $this->lang['admin_answer'],
+                    'inline_keyboard' => [
+                        array(array('text'=> $this->lang['add_film'],'callback_data' => "view.add_film_text")),
+                        array(array('text'=> $this->lang['del_film'],'callback_data' => "view.categories")),
+                    ],
+                    'clean_cache' => true,
+                    'prev_menu' => false,
+                ],
+
+                "add_film_text" => [
+                    'name' => "добавить_текст",
+                    'answer' => $this->lang['add_film_answer'],
+                    'message' => "addFilmText",
+                    'prev_menu' => "admin",
+                ],
+
+                "add_film_photo" => [
+                    'name' => "добавить_фото",
+                    'answer' => $this->lang['add_film_photo_answer'],
+                    'inline_keyboard' => [
+                        array(array('text'=> $this->lang['skip'],'callback_data' => "view.add_film_trailer")),
+                    ],
+                    'message' => "addFilmPhoto",
+                    'prev_menu' => "add_film_text",
+                ],
+
+                "add_film_trailer" => [
+                    'name' => "добавить_трейлер",
+                    'answer' => $this->lang['add_film_trailer_answer'],
+                    'inline_keyboard' => [
+                        array(array('text'=> $this->lang['skip'],'callback_data' => "view.add_film_video")),
+                    ],
+                    'message' => "addFilmTrailer",
+                    'prev_menu' => "add_film_photo",
+                ],
+
+                "add_film_video" => [
+                    'name' => "добавить_фильм",
+                    'answer' => $this->lang['add_film_video_answer'],
+                    'message' => "addFilmVideo",
+                    'prev_menu' => "add_film_trailer",
+                ],
+
+                "categories" => [
+                    'name' => "список категорий",
+                    'answer' => $this->lang['choose_categories'],
+                    'keyboard_func' => "getCategories",
+                    'callback_menu' => "films", // Меню после нажатия кнопки (id)
+                    'prev_menu' => "admin",
+                ],
+
+                "films" => [
+                    'name' => "список фильмов",
+                    'answer' => $this->lang['choose_film'],
+                    'keyboard_func' => "getFilms",
+                    'callback_menu' => "film", // getFilms перекинет на film
+                    'prev_menu' => "categories",
+                ],
+
+                "film" => [
+                    'name' => "карточка фильма",
+                    'view_func' => 'showFilm', // Функция вывода фильма
+                    'prev_menu' => "films",
+                    'delete_btn' => "films" // Создает кнопку удаления которая удалит из таблицы films (можно добавить в любое меню)
+                ],
+
+            ];
         }
 
         // Проверка и парсинг текста

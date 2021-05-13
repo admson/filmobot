@@ -39,7 +39,8 @@
             $this->lng = $this->Message->getFrom()->getLanguageCode();
             $this->msg_id = $this->Message->getMessageId();
             $this->rpc = new Rpc();
-            $this->routes = $routes[getRole($this->chat_id,true)];
+            $role = getRole($this->chat_id);
+            $this->routes = $role->routes;
 
             $user = new authController($this->chat_id, $this->username, $this->firstname, $this->lastname);
             $this->user_data = $user->authUser();
