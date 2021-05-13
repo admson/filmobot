@@ -30,61 +30,77 @@
             $this->routes = $routes;
         }
 
+        // Edit Markup (редактирование клавиатуры)
+        public function editMarkup($hash,$chat_id,$keyboard = false,$msg_id = false,$data = false,$page = 1,$paginator = false)
+        {
+
+        }
+
         // Отрисовка меню
         public function show($hash,$chat_id,$keyboard = false,$msg_id = false,$data = false,$page = 1,$paginator = false) {
-            $role = getRole($chat_id,true);
-            $this->routes = $this->routes[$role];
-            dumpData($this->routes);
-            self::deleteTimeout();
-            //
+            //Поиск хеша и определенеие роли человека
+            $role_s = getRole($chat_id,true);
+            $this->routes = $this->routes[$role_s];
+
             if (!isset($this->routes[$hash])) {
                 $find_hash = $this->db->select("SELECT * FROM _dialogs WHERE hash='$hash'");
                 if (isset($find_hash[0]['id'])) {
-                    $hash = $find_hash[0]['menu'];
+                    $route = $this->routes[$find_hash[0]['menu']];
                     $data = $find_hash[0]['data'];
                 }
+            }else{
+                $route = $this->routes[$hash];
             }
-            if (isset($this->routes[$hash])) {
-                $state_hash = md5($hash.mt_rand(1111,9999));
+            
+            //Удаление по таймауту
+            self::deleteTimeout();
+
+            if (isset($route)) {
+                $state_hash = md5($hash.mt_rand(1111,9999)); // Получаем новый хеш
                 $bot_username = $this->bot->getMe()->getUsername();
                 $this->db->update("UPDATE _accounts SET menu='$hash' WHERE chat_id='$chat_id'");
                 //Чистим историю и создаем новый хеш
-                if (isset($this->routes[$hash]['clean_cache']) && !$paginator) $this->db->delete("DELETE FROM _dialogs WHERE chat_id='$chat_id'");
+                if (isset($route['clean_cache']) && !$paginator) $this->db->delete("DELETE FROM _dialogs WHERE chat_id='$chat_id'");
                 if (!$paginator) {
                     $new_state = $this->db->insert("INSERT INTO _dialogs(hash,chat_id,menu) VALUES('$state_hash','".$chat_id."','".$hash."')");
                 }else{
                     $this->db->update("UPDATE _dialogs SET page='$page' WHERE id='".$paginator[0]['id']."'");
                     $new_state = $paginator[0]['id'];
                 }
-                if (isset($data) && $data >= 1 && !isset($this->routes[$hash]['clean_cache'])) $this->db->update("UPDATE _dialogs SET data='$data' WHERE id='$new_state'");
+                if (isset($data) && $data >= 1 && !isset($route['clean_cache'])) $this->db->update("UPDATE _dialogs SET data='$data' WHERE id='$new_state'");
 
                 // добавляем клавиатуру
-                if (isset($this->routes[$hash]['inline_keyboard'])) {
-                    $kbarray = $this->routes[$hash]['inline_keyboard'];
+                if (isset($route['inline_keyboard'])) {
+                    $kbarray = $route['inline_keyboard'];
                 }else{
                     $kbarray = [];
                 }
 
                 //Добавляем клавиатуру из функции
-                if (isset($this->routes[$hash]['keyboard_func'])) {
+                if (isset($route['keyboard_func'])) {
                     if (isset($page) && $page > 1) $this->db->update("UPDATE _dialogs SET page='$page' WHERE id='$new_state'");
                     $role = getRole($chat_id);
                     if (isset($data)) {
-                        $kbfunc = call_user_func(array($role,$this->routes[$hash]['keyboard_func']),$page,$data);
+                        $kbfunc = call_user_func(array($role,$route['keyboard_func']),$page,$data);
                     }else{
-                        $kbfunc = call_user_func(array($role,$this->routes[$hash]['keyboard_func']),$page);
+                        $kbfunc = call_user_func(array($role,$route['keyboard_func']),$page);
                     }
                     $kbarray = array_merge($kbarray,$kbfunc);
                 }
 
                 //Кнопки удаления
-                if (isset($this->routes[$hash]['delete_btn'])) {
-                    array_push($kbarray, array(array('text'=> $this->lang['delete'],'callback_data' => "delete.".$this->routes[$hash]['delete_btn'].".".$data)));
+                if (isset($route['delete_btn'])) {
+                    array_push($kbarray, array(array('text'=> $this->lang['delete'],'callback_data' => "delete.".$route['delete_btn'].".".$data)));
+                }
+
+                //Реакции
+                if (isset($route['reactions'])) {
+                    array_push($kbarray, array(array('text'=> $this->lang['like'],'callback_data' => "like.".$data),array('text'=> $this->lang['dislike'],'callback_data' => "dislike.".$data)));
                 }
 
                 // Хлебные крошки
                 $breads = "";
-                if (!isset($this->routes[$hash]['clean_cache'])) {
+                if (!isset($route['clean_cache'])) {
                     $_dialogs_bread = $this->db->select("SELECT * FROM _dialogs WHERE chat_id='$chat_id' ORDER BY created_at");
                     foreach ($_dialogs_bread as $state) {
                         if (isset($this->routes[$state['menu']]) && !isset($this->routes[$state['menu']]['clean_cache'])) $breads.= "<i>/<a href='https://t.me/".$bot_username."?start=".$state['hash']."'>".$this->routes[$state['menu']]['name']."</a></i>";
@@ -92,25 +108,25 @@
                 }
 
                 // Назад и отмена
-                if (!isset($this->routes[$hash]['clean_cache'])) {
-                    $prev_menu = $this->routes[$hash]['prev_menu'];
-                    array_push($kbarray, array(array('text'=> $this->lang['back'],'callback_data' => "prew.".$prev_menu),array('text'=> $this->lang['cancel'],'callback_data' => "view.admin")));
+                if (!isset($route['clean_cache'])) {
+                    $prev_menu = $route['prev_menu'];
+                    array_push($kbarray, array(array('text'=> $this->lang['back'],'callback_data' => "prew.".$prev_menu),array('text'=> $this->lang['cancel'],'callback_data' => "view.".$role_s)));
                 }
 
                 $keyboard = new \TelegramBot\Api\Types\Inline\InlineKeyboardMarkup($kbarray);
 
                 // создаем ответ
-                if (isset($this->routes[$hash]['answer'])) {
-                    $answer = $this->routes[$hash]['answer'];
-                    if (!empty($breads)) $answer = $breads . "\n\n" . $this->routes[$hash]['answer'];
+                if (isset($route['answer'])) {
+                    $answer = $route['answer'];
+                    if (!empty($breads)) $answer = $breads . "\n\n" . $route['answer'];
                 }
 
                 // Отправляем либо редактируем сообщение
-                if (!isset($this->routes[$hash]['view_func'])) {
+                if (!isset($route['view_func'])) {
                     self::sendMsg($chat_id, $msg_id, $answer, $keyboard);
                 }else{
                     $role = getRole($chat_id);
-                    call_user_func(array($role,$this->routes[$hash]['view_func']),$data,$chat_id,$breads,$keyboard);
+                    call_user_func(array($role,$route['view_func']),$data,$chat_id,$breads,$keyboard);
                 }
             }
         }

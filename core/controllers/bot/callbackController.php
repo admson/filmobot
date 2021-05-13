@@ -119,8 +119,10 @@
                 $this->db->delete("DELETE FROM ".$data[1]." WHERE id='".$data[2]."'");
                 if (isset($this->routes[$dialog[0]['menu']]['view_func'])) $this->msg_id = false;
                 $this->rpc->show($dialog[1]['menu'],$this->chat_id,false, $this->msg_id,$data2,$page);
-//                sendMessage($this->bot,$this->chat_id,"DELETE FROM ".$data[1]." WHERE id=".$data[2]);
             }
-
+            // Лайки // Дислайки
+            if ($data[0] == "like" && isset($data[1])) {
+                $this->rpc->editMarkup($this->routes[$dialog[0]['menu']]['callback_menu'],$this->chat_id,false, $this->msg_id,$data[1],1);
+            }
         }
 	}

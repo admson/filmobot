@@ -14,13 +14,14 @@
             'answer' => $lang['choose_film'],
             'keyboard_func' => "getFilms",
             'callback_menu' => "film", // getFilms перекинет на film
-            'prev_menu' => "categories",
+            'prev_menu' => "main",
         ],
 
         "film" => [
-            'name' => "карточка фильма",
+            'name' => "",
             'view_func' => 'showFilm', // Функция вывода фильма
             'prev_menu' => "films",
+            'reactions' => true
         ],
     ];
 
@@ -77,7 +78,7 @@
             sendMediaGroup($this->bot,$chat_id,$media);
 
             //Хлебные крошки
-            $answer = $breads."\n\n".$film[0]['name']." (".$film[0]['year'].")";
+            $answer = $breads.mb_strtolower("<i>".$film[0]['name']."</i>")."\n\n".$film[0]['name']." (".$film[0]['year'].")";
 
             //Отправляем ролик с кнопками
             sendVideo($this->bot,$chat_id,$film[0]['video'],$answer,$keyboard);
