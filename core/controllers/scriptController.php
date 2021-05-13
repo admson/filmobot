@@ -32,7 +32,7 @@
         }
 
         // Создание медиагруппы
-        public function createMediaGroup($film) {
+        public function createMediaGroup($film,$card = false) {
             $media = new \TelegramBot\Api\Types\InputMedia\ArrayOfInputMedia();
             if (isset($film[0]['photo'])) {
                 $media->addItem(new TelegramBot\Api\Types\InputMedia\InputMediaPhoto($film[0]['photo'],$film[0]['text'],"html"));
@@ -40,7 +40,7 @@
             if (isset($film[0]['trailer'])) {
                 $media->addItem(new TelegramBot\Api\Types\InputMedia\InputMediaVideo($film[0]['trailer']));
             }
-            if (isset($film[0]['video'])) {
+            if (isset($film[0]['video']) && !$card) {
                 $media->addItem(new TelegramBot\Api\Types\InputMedia\InputMediaVideo($film[0]['video']));
             }
 

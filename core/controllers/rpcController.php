@@ -134,8 +134,8 @@
 
             //Реакции
             if (isset($route['reactions'])) {
-                $react_1 = $this->db->count("SELECT COUNT(1) FROM _reactions WHERE chat_id='$chat_id' AND item_id='$data' AND react=1");
-                $react_2 = $this->db->count("SELECT COUNT(1) FROM _reactions WHERE chat_id='$chat_id' AND item_id='$data' AND react=2");
+                $react_1 = $this->db->count("SELECT COUNT(1) FROM _reactions WHERE item_id='$data' AND react=1");
+                $react_2 = $this->db->count("SELECT COUNT(1) FROM _reactions WHERE item_id='$data' AND react=2");
                 array_push($kbarray, array(array('text'=> $this->lang['like']." ".$react_1,'callback_data' => "reaction.".$data.".1"),array('text'=> $this->lang['dislike']." ".$react_2,'callback_data' => "reaction.".$data.".2")));
             }
 
