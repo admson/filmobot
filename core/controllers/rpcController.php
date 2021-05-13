@@ -34,9 +34,14 @@
         }
 
         // Edit Markup (редактирование клавиатуры)
-        public function editMarkup($hash,$chat_id,$keyboard = false,$msg_id = false,$data = false,$page = 1,$paginator = false)
+        public function updateMarkup($hash,$chat_id,$keyboard = false,$msg_id = false,$data = false,$page = 1,$paginator = false)
         {
-
+            $role_s = getRole($chat_id,true);
+            $this->routes = $this->routes[$role_s];
+            $route = $this->routes[$hash];
+            $kbarray = $this->createMarkup($chat_id,$route,$data,$page);
+            $keyboard = new \TelegramBot\Api\Types\Inline\InlineKeyboardMarkup($kbarray);
+            editMessageReplyMarkup($this->bot,$chat_id,$msg_id,$keyboard);
         }
 
         // Отрисовка меню
@@ -130,7 +135,9 @@
 
             //Реакции
             if (isset($route['reactions'])) {
-                array_push($kbarray, array(array('text'=> $this->lang['like'],'callback_data' => "like.".$data),array('text'=> $this->lang['dislike'],'callback_data' => "dislike.".$data)));
+                $react_1 = $this->db->count("SELECT COUNT(1) FROM _reactions WHERE chat_id='$chat_id' AND item_id='$data' AND react=1");
+                $react_2 = $this->db->count("SELECT COUNT(1) FROM _reactions WHERE chat_id='$chat_id' AND item_id='$data' AND react=2");
+                array_push($kbarray, array(array('text'=> $this->lang['like']." ".$react_1,'callback_data' => "reaction.".$data.".1"),array('text'=> $this->lang['dislike']." ".$react_2,'callback_data' => "reaction.".$data.".2")));
             }
 
             // Назад и отмена

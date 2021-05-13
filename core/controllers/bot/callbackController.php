@@ -99,7 +99,7 @@
                 foreach ($dialog as $diag) {
                     $this->db->delete("DELETE FROM _dialogs WHERE id='".$diag['id']."'");
                 }
-                if (isset($this->routes[$dialog[0]['menu']]['view_func'])) $this->msg_id = false;
+                if (isset($this->routes[$dialog[0]['menu']]['view_func'])) $this->msg_id = false; //
                 $this->rpc->show($data[1],$this->chat_id,false, $this->msg_id,$data2,$page);
             }
             // Выбор фильмов, категорий, чего угодно
@@ -120,9 +120,17 @@
                 if (isset($this->routes[$dialog[0]['menu']]['view_func'])) $this->msg_id = false;
                 $this->rpc->show($dialog[1]['menu'],$this->chat_id,false, $this->msg_id,$data2,$page);
             }
-            // Лайки // Дислайки
-            if ($data[0] == "like" && isset($data[1])) {
-                $this->rpc->editMarkup($this->routes[$dialog[0]['menu']]['callback_menu'],$this->chat_id,false, $this->msg_id,$data[1],1);
+            // Лайки // Дислайки | react = 1 // 2 (data2)
+            if ($data[0] == "reaction" && isset($data[1]) && isset($data[2])) {
+                $f_reaction = $this->db->select("SELECT * FROM _reactions WHERE item_id='".$data[1]."' AND chat_id='".$this->chat_id."'");
+                if (!isset($f_reaction[0]['id'])) {
+                    $this->db->insert("INSERT INTO _reactions(item_id,chat_id,react) VALUES('".$data[1]."','".$this->chat_id."','".$data[2]."')");
+                    answerCallbackQuery($this->bot,$this->Callback->getId(),$this->lang['success_react']);
+                    $this->rpc->updateMarkup($dialog[0]['menu'],$this->chat_id,false, $this->msg_id,$data[1],1);
+                }else{
+                    //Если человек уже поставил лайк
+                    answerCallbackQuery($this->bot,$this->Callback->getId(),$this->lang['already_react']);
+                }
             }
         }
 	}
