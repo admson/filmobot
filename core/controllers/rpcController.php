@@ -55,6 +55,11 @@
                     $route = $this->routes[$find_hash[0]['menu']];
                     $data = $find_hash[0]['data'];
                 }
+                $find_film = $this->db->select("SELECT * FROM films WHERE hash='$hash'");
+                if (isset($find_film[0]['id'])) {
+                    $route = $this->routes['film'];
+                    $data = $find_film[0]['id'];
+                }
             }else{
                 $route = $this->routes[$hash];
             }
