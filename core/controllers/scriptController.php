@@ -47,6 +47,11 @@
             return $media;
         }
 
+        //Сортировка по ключу в массиве
+        public function compareByName($a, $b) {
+            return strcmp($a["name"], $b["name"]);
+        }
+
         //Получение кнопок с пагинацией
         public function getButtons($page,$content) {
             // Пагинатор
@@ -57,7 +62,8 @@
             if(empty($page) or $page < 0) $page = 1;
             if($page > $total) $page = $total;
             $start = $page * $per_page - $per_page;
-
+            // сортировка
+            usort($content, array($this, "compareByName"));
             $content = array_slice($content,$start,$per_page);
             $main_array = [];
 
@@ -71,7 +77,7 @@
             if ($count > PER_PAGE) {
                 $paginator = [];
                 if ($page != 1) array_push($paginator, array('text'=>$this->lang['prew'],'callback_data' => 'catalog_page.'.($page - 1)));
-                array_push($paginator, array('text'=>$this->lang['curpage'].$page,'callback_data' => '1'));
+                array_push($paginator, array('text'=>$page."/".$total,'callback_data' => '1'));
                 if ($page != $total) array_push($paginator, array('text'=>$this->lang['next'],'callback_data' => 'catalog_page.'.($page + 1)));
                 array_push($main_array, $paginator);
             }
