@@ -206,7 +206,7 @@
                 if (isset($film[0]['trailer'])) {
                     $kb = [];
                     $bot_username = $this->bot->getMe()->getUsername();
-                    array_push($kb, array(array('text'=> $this->lang['gotofilm'],'url' => "https://t.me/".$bot_username."?start=flm".$film[0]['hash'])));
+                    array_push($kb, array(array('text'=> $this->lang['gotofilm'],'url' => "https://t.me/".$bot_username."?start=".$film[0]['hash'])));
                     $keyboard = new \TelegramBot\Api\Types\Inline\InlineKeyboardMarkup($kb);
                     $p2_msg_id = sendVideo($this->bot,PUBLICCHATID,$film[0]['trailer'],false,$keyboard);
                 }
