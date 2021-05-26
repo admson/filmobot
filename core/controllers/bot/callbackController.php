@@ -18,12 +18,12 @@
 		public $lastname;
 		public $firstname;
 		public $user_data;
+		public $role;
 		public $rpc;
 		public $routes;
 
 		function __construct($bot,$db,$dbconnection,$Callback,$lang)
 		{
-		    global $routes;
 			$this->bot = $bot;
             $this->db = $db;
             $this->dbconnection = $dbconnection;
@@ -39,8 +39,8 @@
             $this->lng = $this->Message->getFrom()->getLanguageCode();
             $this->msg_id = $this->Message->getMessageId();
             $this->rpc = new Rpc();
-            $role = getRole($this->chat_id);
-            $this->routes = $role->routes;
+            $this->role = getRole($this->chat_id);
+            $this->routes = $this->role->routes;
 
             $user = new authController($this->chat_id, $this->username, $this->firstname, $this->lastname);
             $this->user_data = $user->authUser();
@@ -93,36 +93,13 @@
             }
             // предыдущая страница
             if ($data[0] == "prew" && isset($data[1])) {
-                $dialog = $this->db->select("SELECT * FROM _dialogs WHERE chat_id='".$this->chat_id."' ORDER BY created_at DESC LIMIT 2");
-                $data2 = false;
-                if (isset($dialog[1]['data'])) $data2 = $dialog[1]['data'];
-                $page = 1;
-                if (isset($dialog[1]['page'])) $page = $dialog[1]['page'];
-                foreach ($dialog as $diag) {
-                    $this->db->delete("DELETE FROM _dialogs WHERE id='".$diag['id']."'");
-                }
-                if (isset($this->routes[$dialog[0]['menu']]['view_func'])) $this->msg_id = false; //
-                $this->rpc->show($data[1],$this->chat_id,false, $this->msg_id,$data2,$page);
+                $this->rpc->prewMenu($this->chat_id,$data[1],$this->msg_id);
             }
-            // Выбор фильмов, категорий, чего угодно
+            // Выбор чего угодно select в функциях клавиатуры
             if ($data[0] == "select" && isset($data[1])) {
                 $this->rpc->show($this->routes[$dialog[0]['menu']]['callback_menu'],$this->chat_id,false, $this->msg_id,$data[1],1);
             }
-            // Кнопка удаления
-            if ($data[0] == "delete" && isset($data[1]) && isset($data[2])) {
-                $dialog = $this->db->select("SELECT * FROM _dialogs WHERE chat_id='".$this->chat_id."' ORDER BY created_at DESC LIMIT 2");
-                $page = 1;
-                if (isset($dialog[1]['page'])) $page = $dialog[1]['page'];
-                $data2 = false;
-                if (isset($dialog[0]['data'])) $data2 = $dialog[0]['data'];
-                foreach ($dialog as $diag) {
-                    $this->db->delete("DELETE FROM _dialogs WHERE id='".$diag['id']."'");
-                }
-                $this->db->delete("DELETE FROM ".$data[1]." WHERE id='".$data[2]."'");
-                if (isset($this->routes[$dialog[0]['menu']]['view_func'])) $this->msg_id = false;
-                $this->rpc->show($dialog[1]['menu'],$this->chat_id,false, $this->msg_id,$data2,$page);
-            }
-            // Лайки // Дислайки | react = 1 // 2 (data2)
+            // Лайки // Дислайки | react = 1 // 2 (data2) (Привязываются к сообщению item_id) Унивесальные
             if ($data[0] == "reaction" && isset($data[1]) && isset($data[2])) {
                 $f_reaction = $this->db->select("SELECT * FROM _reactions WHERE item_id='".$data[1]."' AND chat_id='".$this->chat_id."'");
                 if (!isset($f_reaction[0]['id'])) {
@@ -134,5 +111,7 @@
                     answerCallbackQuery($this->bot,$this->Callback->getId(),$this->lang['already_react']);
                 }
             }
+            //Запускаем проверку каллбеков из сюжета
+            $this->role->callbacks($data,$this->chat_id,$this->msg_id);
         }
 	}

@@ -10,6 +10,7 @@
     class Admin extends scriptController {
         // Берем данные с scriptController
         // $this->bot - бот, $this->db - база данных, $this->lang - язык
+
         public function __construct(){
             parent::__construct();
 
@@ -83,6 +84,19 @@
                 ],
 
             ];
+        }
+
+        //Обработка каллбеков для сюжета
+        public function callbacks($call,$chat_id,$msg_id = false) {
+            $rpc = new Rpc();
+
+            if ($call[0] == "delete" && isset($call[1])) {
+                //Удаляем фильм
+                $this->db->delete("DELETE FROM films WHERE id='".$call[1]."'");
+                //Прказываем prewMenu
+                $dialog = $this->db->select("SELECT * FROM _dialogs WHERE chat_id='".$chat_id."' ORDER BY created_at DESC LIMIT 2");
+                $rpc->prewMenu($chat_id,$dialog[1]['menu'],$msg_id);
+            }
         }
 
         // Проверка и парсинг текста
@@ -279,6 +293,4 @@
             //Отправляем ролик с кнопками
             sendVideo($this->bot,$chat_id,$film[0]['video'],$answer,$keyboard);
         }
-
-
     }

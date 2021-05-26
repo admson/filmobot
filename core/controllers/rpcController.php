@@ -24,7 +24,7 @@
 
         // Конструктор
         public function __construct(){
-            global $db,$dbconnection,$bot,$lang,$routes;
+            global $db,$dbconnection,$bot,$lang;
 
             $this->db = $db;
             $this->dbconnection = $dbconnection;
@@ -134,7 +134,7 @@
 
             //Кнопки удаления
             if (isset($route['delete_btn'])) {
-                array_push($kbarray, array(array('text'=> $this->lang['delete'],'callback_data' => "delete.".$route['delete_btn'].".".$data)));
+                array_push($kbarray, array(array('text'=> $this->lang['delete'],'callback_data' => "delete.".$data)));
             }
 
             //Реакции
@@ -172,6 +172,23 @@
             $now_time = new DateTime('now');
             $now_time->modify("-".FILM_TIMEOUT." minutes");
             $this->db->delete("DELETE FROM films WHERE created_at <= '".$now_time->format('Y-m-d H:i:s')."' AND hash IS NULL");
+        }
+
+        // Функция возвращения на предыдущее меню
+        public function prewMenu($chat_id,$menu,$msg_id = false) {
+            $role = getRole($chat_id);
+            $this->routes = $role->routes;
+
+            $dialog = $this->db->select("SELECT * FROM _dialogs WHERE chat_id='".$chat_id."' ORDER BY created_at DESC LIMIT 2");
+            $data2 = false;
+            if (isset($dialog[1]['data'])) $data2 = $dialog[1]['data'];
+            $page = 1;
+            if (isset($dialog[1]['page'])) $page = $dialog[1]['page'];
+            foreach ($dialog as $diag) {
+                $this->db->delete("DELETE FROM _dialogs WHERE id='".$diag['id']."'");
+            }
+            if (isset($this->routes[$dialog[0]['menu']]['view_func'])) $msg_id = false; //
+            $this->show($menu,$chat_id,false, $msg_id,$data2,$page);
         }
 
     }
