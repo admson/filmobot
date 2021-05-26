@@ -32,6 +32,16 @@
                     'prev_menu' => "films",
                     'reactions' => true
                 ],
+
+                //При нажатии на кнопку "О компании"
+                "about_company" => [
+                    'name' => "О компании",
+                    'answer' => $this->lang['about_company_text'],
+                    'prev_menu' => false,
+//                    'inline_keyboard' => [
+//                        array(array('text'=> $this->lang['cancel'],'callback_data' => "view.main")),
+//                    ],
+                ],
             ];
         }
 

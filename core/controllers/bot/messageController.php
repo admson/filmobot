@@ -51,9 +51,12 @@ class messageController
         $this->username = $Message->getChat()->getUsername();
         $this->chat_id = $Message->getChat()->getId();
 
+        $rpc = new Rpc();
+
         //Авторизация
         $user = new authController($this->chat_id, $this->username, $this->firstname, $this->lastname);
         $this->user_data = $user->authUser();
+
         // Если заблокирован
         if ($this->user_data[0]['status'] == 2) exit();
         $_dialogs = $db->select("SELECT * FROM _dialogs WHERE chat_id='".$this->chat_id."' ORDER BY created_at DESC LIMIT 1");
@@ -70,8 +73,16 @@ class messageController
 
         $role = getRole($this->chat_id);
         $routes = $role->routes;
-        call_user_func(array($role,$routes[$this->user_data[0]['menu']]['message']),$data);
+        if (isset($routes[$this->user_data[0]['menu']]['message'])) {
+            call_user_func(array($role, $routes[$this->user_data[0]['menu']]['message']), $data);
+        }
 
+        //Проверка стандатрных меню (Клавиатура)
+        foreach ($routes as $key => $value) {
+            if ($value['name'] == $this->text) {
+                $rpc->show($key,$this->chat_id);
+            }
+        }
     }
 
 }

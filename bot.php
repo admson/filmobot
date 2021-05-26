@@ -31,6 +31,12 @@
         $user = new authController($chat_id, $username, $firstname, $last_name);
         $user_data = $user->authUser();
 
+        //Сообщение с клавиатурой
+        $main_keyboard = [];
+        array_push($main_keyboard, array(array('text'=>$lang['about_company']),array('text'=>$lang['statistics'])));
+        $keyboard = new \TelegramBot\Api\Types\ReplyKeyboardMarkup($main_keyboard,true, true);
+        sendMessage($bot,$chat_id,$lang['welcome_keyboard'],$keyboard);
+
         $msg_hash = explode(" ", $text);
         #Check hash
         if (isset($msg_hash[1])) {

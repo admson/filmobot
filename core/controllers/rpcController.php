@@ -147,7 +147,11 @@
             // Назад и отмена
             if (!isset($route['clean_cache'])) {
                 $prev_menu = $route['prev_menu'];
-                array_push($kbarray, array(array('text'=> $this->lang['back'],'callback_data' => "prew.".$prev_menu),array('text'=> $this->lang['cancel'],'callback_data' => "view.".$role_s)));
+                if ($prev_menu) {
+                    array_push($kbarray, array(array('text'=> $this->lang['back'],'callback_data' => "prew.".$prev_menu),array('text'=> $this->lang['cancel'],'callback_data' => "view.".$role_s)));
+                }else{
+                    array_push($kbarray, array(array('text'=> $this->lang['cancel'],'callback_data' => "view.".$role_s)));
+                }
             }
 
             return $kbarray;
