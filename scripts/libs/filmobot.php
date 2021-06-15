@@ -9,7 +9,7 @@
         }
 
         // Создание медиагруппы
-        public function createMediaGroup($film,$card = false) {
+        public static function createMediaGroup($film,$card = false) {
             $media = new \TelegramBot\Api\Types\InputMedia\ArrayOfInputMedia();
             if (isset($film[0]['photo'])) {
                 $media->addItem(new TelegramBot\Api\Types\InputMedia\InputMediaPhoto($film[0]['photo'],$film[0]['text'],"html"));
@@ -25,7 +25,7 @@
         }
 
         // Функция получения хеш-тегов
-        public function getHashtags($string) {
+        public static function getHashtags($string) {
             $hashtags= FALSE;
             preg_match_all("/(#\w+)/u", $string, $matches);
             if ($matches) {

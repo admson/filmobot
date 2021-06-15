@@ -39,6 +39,24 @@
                     'answer' => $this->lang['about_company_text'],
                     'prev_menu' => false,
                 ],
+
+                //При нажатии на кнопку "Статистика"
+                "statistics" => [
+                    'name' => "Статистика",
+                    'answer' => $this->lang['statistics_text'],
+                    'prev_menu' => false,
+                    'inline_keyboard' => [
+                        array(array('text'=> $this->lang['stats_btn_shows'],'callback_data' => "view.stats_shows")),
+                        array(array('text'=> $this->lang['stats_btn_users'],'callback_data' => "view.stats_users")),
+                        array(array('text'=> $this->lang['stats_btn_showtime'],'callback_data' => "view.stats_time")),
+                    ],
+                ],
+
+                "stats_shows" => [
+                    'name' => "статистика показов",
+                    'view_func' => 'statsShows', // статистика
+                    'prev_menu' => "statistics",
+                ],
             ];
         }
 
@@ -100,10 +118,19 @@
             $media = filmoBot::createMediaGroup($film,true);
             sendMediaGroup($this->bot,$chat_id,$media);
 
+            //Добавляем +1 просмотр в статистику
+            $stats = new Stats;
+            $stats->addStat($chat_id,"show_film");
+
             //Хлебные крошки
             $answer = $breads.mb_strtolower("<i><a href='https://t.me/".$bot_username."?start=".$film[0]['hash']."'>".$film[0]['name']."</a></i>")."\n\n".$film[0]['name']." (".$film[0]['year'].")";
 
             //Отправляем ролик с кнопками
             sendVideo($this->bot,$chat_id,$film[0]['video'],$answer,$keyboard);
+        }
+
+        //Показ статистики простмотров
+        public function statsShows() {
+
         }
     }
