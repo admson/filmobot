@@ -127,7 +127,7 @@
                 }
 
                 // Получаем жанры и вносим в базу данных
-                $genres = parent::getHashtags($data['text']);
+                $genres = filmoBot::getHashtags($data['text']);
                 $ctgrs = [];
                 foreach ($genres as $gen) {
                     $gen = str_replace("#", "", $gen);
@@ -241,7 +241,7 @@
 
             // Приватный канал, отправка медиагруппы
             if (PRIVATECHATID != false) {
-                $media = parent::createMediaGroup($film);
+                $media = filmoBot::createMediaGroup($film);
                 try {
                     $msg_id2 = $this->bot->sendMediaGroup(PRIVATECHATID,$media);
                     if (isset($msg_id2)) $this->db->update("UPDATE films SET private_msg_id='".$msg_id2[0]->getMessageId()."' WHERE id='$film_id'");
@@ -293,7 +293,7 @@
             $film[0]['text'].= "\n\n<a href='https://t.me/".$bot_username."?start=".$film[0]['hash']."'>".$this->lang['show_film_button']."</a>";
 
             // Отправляем медиа
-            $media = parent::createMediaGroup($film);
+            $media = filmoBot::createMediaGroup($film);
             sendMediaGroup($this->bot,$chat_id,$media);
 
             //Хлебные крошки

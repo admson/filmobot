@@ -97,7 +97,7 @@
             $film[0]['text'].= "\n\n<a href='https://t.me/".$bot_username."?start=".$film[0]['hash']."'>".$this->lang['show_film_button']."</a>";
 
             // Отправляем медиа
-            $media = parent::createMediaGroup($film,true);
+            $media = filmoBot::createMediaGroup($film,true);
             sendMediaGroup($this->bot,$chat_id,$media);
 
             //Хлебные крошки

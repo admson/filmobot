@@ -47,3 +47,8 @@
     foreach ($scripts as $scr) {
         include "scripts/$scr.php";
     }
+
+    // Подгрузка libs из config.php
+    foreach ($libs as $lib) {
+        include "scripts/libs/$lib.php";
+    }
