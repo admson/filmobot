@@ -51,6 +51,38 @@
         }
     });
 
+    $bot->command('help', function ($message) use ($bot, $db, $dbconnection, $lang, $employers) {
+        $text = $message->getText();
+        $firstname = $message->getChat()->getFirstName();
+        $last_name = $message->getChat()->getLastName();
+        $username = $message->getChat()->getUsername();
+        $chat_id = $message->getChat()->getId();
+
+        // Проверка существует ли аккаунт
+        $is_account = $db->select("SELECT * FROM _accounts WHERE chat_id='$chat_id'");
+        if (!isset($is_account[0]['id'])) {
+            $new_account = true;
+        }else{
+            // status 2 это если человек заблокирован
+            if ($is_account[0]['status'] == 2) exit();
+        }
+        // Авторизация пользователя
+        $user = new authController($chat_id, $username, $firstname, $last_name);
+        $user_data = $user->authUser();
+
+        if (isset($employers[$chat_id])) {
+            $role = $employers[$chat_id];
+        }else{
+            $role = "main";
+        }
+
+        //Сообщение с клавиатурой
+        $main_keyboard = [];
+        array_push($main_keyboard, array(array('text'=> $lang['cancel'],'callback_data' => "view.".$role)));
+        $keyboard = new \TelegramBot\Api\Types\Inline\InlineKeyboardMarkup($main_keyboard);
+        sendMessage($bot,$chat_id,$lang['help_message'],$keyboard);
+    });
+
     // Обработчик для обновлений
     $bot->on(function ($Update) use ($bot,$db,$dbconnection,$lang) {
         try {

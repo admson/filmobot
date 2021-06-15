@@ -26,6 +26,9 @@
             "welcome_answer" => "Тысячи фильмов у вас под рукой!\n\nИспользуйте клавиатуру ниже для навигации!",
             "startmenu" => "Тест тест",
 
+            #/help
+            "help_message" => "Сообщение help",
+
             #Main Keyboard
             "about_company" => "О компании",
             "statistics" => "Статистика",
