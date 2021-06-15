@@ -86,6 +86,15 @@
             ];
         }
 
+        // Обработка хешей
+        public function customHash($hash) {
+            $find_film = $this->db->select("SELECT * FROM films WHERE hash='$hash'");
+            if (isset($find_film[0]['id'])) {
+                $id = $find_film[0]['id'];
+                return ['film',$id];
+            }
+        }
+
         //Обработка каллбеков для сюжета
         public function callbacks($call,$chat_id,$msg_id = false) {
             $rpc = new Rpc();

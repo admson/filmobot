@@ -70,11 +70,13 @@
             $data = explode(".", $query);
             $dialog = $this->db->select("SELECT * FROM _dialogs WHERE chat_id='".$this->chat_id."' ORDER BY created_at DESC LIMIT 1");
 
-            // Обработка каллбеков для перекидывания сразу на меню ( с сохраненим параметров id)
+            // Обработка каллбеков для перекидывания сразу на меню
             if ($data[0] == "view" && isset($data[1])) {
                 $data2 = false;
                 if (isset($dialog[0]['data'])) $data2 = $dialog[0]['data'];
                 if (isset($this->routes[$dialog[0]['menu']]['view_func'])) $this->msg_id = false;
+//                if (isset($this->routes[$dialog[0]['menu']]['view_func'])) $this->msg_id = false;
+                dumpData($dialog[0]['menu']);
                 $this->rpc->show($data[1],$this->chat_id,false, $this->msg_id,$data2);
             }// Обработка каллбеков для перекидывания сразу на меню ( с сохраненим параметров id)
             if ($data[0] == "catalog_page" && isset($data[1])) {
@@ -103,12 +105,20 @@
             if ($data[0] == "reaction" && isset($data[1]) && isset($data[2])) {
                 $f_reaction = $this->db->select("SELECT * FROM _reactions WHERE item_id='".$data[1]."' AND chat_id='".$this->chat_id."'");
                 if (!isset($f_reaction[0]['id'])) {
-                    $this->db->insert("INSERT INTO _reactions(item_id,chat_id,react) VALUES('".$data[1]."','".$this->chat_id."','".$data[2]."')");
-                    answerCallbackQuery($this->bot,$this->Callback->getId(),$this->lang['success_react']);
-                    $this->rpc->updateMarkup($dialog[0]['menu'],$this->chat_id,false, $this->msg_id,$data[1],1);
+                    $this->db->insert("INSERT INTO _reactions(item_id,chat_id,react) VALUES('".$data[1]."','".$this->chat_id."','".$data[2]."')"); // Создаем реакцию
+                    answerCallbackQuery($this->bot,$this->Callback->getId(),$this->lang['success_react']); // Успешно
+                    $this->rpc->updateMarkup($dialog[0]['menu'],$this->chat_id,false, $this->msg_id,$data[1],1); // Обновляем вью на сообщении
                 }else{
-                    //Если человек уже поставил лайк
-                    answerCallbackQuery($this->bot,$this->Callback->getId(),$this->lang['already_react']);
+                    //Если такая реакция уже поставлена
+                    if ($data[2] == $f_reaction[0]['react']) {
+                        answerCallbackQuery($this->bot, $this->Callback->getId(), $this->lang['already_react']); // Сообщение о удалении реакции
+                        $this->db->delete("DELETE FROM _reactions WHERE id='".$f_reaction[0]['id']."'"); // Удаляем реакцию
+                    }else{
+                        $this->db->delete("DELETE FROM _reactions WHERE id='".$f_reaction[0]['id']."'"); // Удаляем реакцию
+                        $this->db->insert("INSERT INTO _reactions(item_id,chat_id,react) VALUES('".$data[1]."','".$this->chat_id."','".$data[2]."')"); // Ставим новую рекакцию
+                        answerCallbackQuery($this->bot,$this->Callback->getId(),$this->lang['success_react']);
+                    }
+                    $this->rpc->updateMarkup($dialog[0]['menu'],$this->chat_id,false, $this->msg_id,$data[1],1); // Обновляем вью на сообщении
                 }
             }
             //Запускаем проверку каллбеков из сюжета

@@ -38,11 +38,23 @@
                     'name' => "О компании",
                     'answer' => $this->lang['about_company_text'],
                     'prev_menu' => false,
-//                    'inline_keyboard' => [
-//                        array(array('text'=> $this->lang['cancel'],'callback_data' => "view.main")),
-//                    ],
                 ],
             ];
+        }
+
+        // Обязательная функция в скриптах
+        public function customHash($hash) {
+            $find_film = $this->db->select("SELECT * FROM films WHERE hash='$hash'");
+            if (isset($find_film[0]['id'])) {
+                $id = $find_film[0]['id'];
+                return ['film',$id];
+            }
+        }
+
+        //Обработка каллбеков для сюжета
+        public function callbacks($call,$chat_id,$msg_id = false) {
+            $rpc = new Rpc();
+            // todo
         }
 
         //Показ категорий к фильмам
@@ -89,7 +101,7 @@
             sendMediaGroup($this->bot,$chat_id,$media);
 
             //Хлебные крошки
-            $answer = $breads.mb_strtolower("<i>".$film[0]['name']."</i>")."\n\n".$film[0]['name']." (".$film[0]['year'].")";
+            $answer = $breads.mb_strtolower("<i><a href='https://t.me/".$bot_username."?start=".$film[0]['hash']."'>".$film[0]['name']."</a></i>")."\n\n".$film[0]['name']." (".$film[0]['year'].")";
 
             //Отправляем ролик с кнопками
             sendVideo($this->bot,$chat_id,$film[0]['video'],$answer,$keyboard);

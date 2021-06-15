@@ -50,15 +50,19 @@
             $this->routes = $role->routes;
 
             if (!isset($this->routes[$hash])) {
+                // Поиск хешей
                 $find_hash = $this->db->select("SELECT * FROM _dialogs WHERE hash='$hash'");
                 if (isset($find_hash[0]['id'])) {
                     $route = $this->routes[$find_hash[0]['menu']];
                     $data = $find_hash[0]['data'];
+                    $hash = $find_hash[0]['menu'];
                 }
-                $find_film = $this->db->select("SELECT * FROM films WHERE hash='$hash'");
-                if (isset($find_film[0]['id'])) {
-                    $route = $this->routes['film'];
-                    $data = $find_film[0]['id'];
+                // Поиск кастомных сюжетных хешей
+                $custom_hash = call_user_func(array($role,'customHash'),$hash);;
+                if (isset($custom_hash[0]) && isset($custom_hash[1])) {
+                    $route = $this->routes[$custom_hash[0]];
+                    $data = $custom_hash[1];
+                    $hash = $custom_hash[0];
                 }
             }else{
                 $route = $this->routes[$hash];
@@ -191,7 +195,7 @@
             foreach ($dialog as $diag) {
                 $this->db->delete("DELETE FROM _dialogs WHERE id='".$diag['id']."'");
             }
-            if (isset($this->routes[$dialog[0]['menu']]['view_func'])) $msg_id = false; //
+            if (isset($this->routes[$dialog[0]['menu']]['view_func'])) $msg_id = false;
             $this->show($menu,$chat_id,false, $msg_id,$data2,$page);
         }
 
