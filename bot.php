@@ -31,6 +31,9 @@
         $user = new authController($chat_id, $username, $firstname, $last_name);
         $user_data = $user->authUser();
 
+        $stats = new Stats;
+        $stats->addStat($chat_id,"login");
+
         //Сообщение с клавиатурой
         $main_keyboard = [];
         array_push($main_keyboard, array(array('text'=>$lang['about_company']),array('text'=>$lang['statistics'])));
@@ -75,6 +78,9 @@
         }else{
             $role = "main";
         }
+
+        $stats = new Stats;
+        $stats->addStat($chat_id,"сmd_help");
 
         //Сообщение с клавиатурой
         $main_keyboard = [];

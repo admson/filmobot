@@ -48,7 +48,6 @@
         include "scripts/$scr.php";
     }
 
-    // Подгрузка libs из config.php
-    foreach ($libs as $lib) {
-        include "scripts/libs/$lib.php";
-    }
+    // Загрузка библиотек
+    include 'scripts/libs/filmobot.php';
+    include 'scripts/libs/stats.php';

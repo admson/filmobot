@@ -43,19 +43,8 @@
                 //При нажатии на кнопку "Статистика"
                 "statistics" => [
                     'name' => "Статистика",
-                    'answer' => $this->lang['statistics_text'],
+                    'view_func' => 'showStats', // Функция вывода статистики
                     'prev_menu' => false,
-                    'inline_keyboard' => [
-                        array(array('text'=> $this->lang['stats_btn_shows'],'callback_data' => "view.stats_shows")),
-                        array(array('text'=> $this->lang['stats_btn_users'],'callback_data' => "view.stats_users")),
-                        array(array('text'=> $this->lang['stats_btn_showtime'],'callback_data' => "view.stats_time")),
-                    ],
-                ],
-
-                "stats_shows" => [
-                    'name' => "статистика показов",
-                    'view_func' => 'statsShows', // статистика
-                    'prev_menu' => "statistics",
                 ],
             ];
         }
@@ -115,7 +104,7 @@
             $film[0]['text'].= "\n\n<a href='https://t.me/".$bot_username."?start=".$film[0]['hash']."'>".$this->lang['show_film_button']."</a>";
 
             // Отправляем медиа
-            $media = filmoBot::createMediaGroup($film,true);
+            $media = createMediaGroup($film,true);
             sendMediaGroup($this->bot,$chat_id,$media);
 
             //Добавляем +1 просмотр в статистику
@@ -130,7 +119,26 @@
         }
 
         //Показ статистики простмотров
-        public function statsShows() {
+        public function showStats($data,$chat_id,$breads,$keyboard) {
+            $stats = new Stats;
 
+            $today_show_films = $stats->getStats("show_film", "today");
+            $week_show_films = $stats->getStats("show_film", "week");
+            $month_show_films = $stats->getStats("show_film", "lastmonth");
+
+            $today_acc = $stats->getAccountsStats("today");
+            $week_acc = $stats->getAccountsStats("week");
+            $month_acc = $stats->getAccountsStats("lastmonth");
+
+            $today_time = $stats->getUsedTime("today");
+            $week_time = $stats->getUsedTime("week");
+            $month_time = $stats->getUsedTime("lastmonth");
+
+            $answer = sprintf($this->lang['statistics_text'],$today_show_films,$week_show_films,$month_show_films,$today_acc,$week_acc,$month_acc,$today_time,$week_time,$month_time);
+
+            $stats = new Stats;
+            $stats->addStat($chat_id,"show_stats");
+
+            sendMessage($this->bot,$chat_id,$answer,$keyboard);
         }
     }
