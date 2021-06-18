@@ -20,7 +20,8 @@
 
                 "films" => [
                     'name' => "список фильмов",
-                    'answer' => $this->lang['choose_film'],
+//                    'answer' => $this->lang['choose_film'],
+                    'view_func' => 'showCategory',
                     'keyboard_func' => "getFilms",
                     'callback_menu' => "film", // getFilms перекинет на film
                     'prev_menu' => "main",
@@ -116,6 +117,20 @@
 
             //Отправляем ролик с кнопками
             sendVideo($this->bot,$chat_id,$film[0]['video'],$answer,$keyboard);
+        }
+
+        public function showCategory($id,$chat_id,$breads,$keyboard) {
+            $category = $this->db->select("SELECT * FROM categories WHERE id='$id'");
+
+            //Хлебные крошки
+            $answer = $breads."\n\n".$this->lang['choose_film'];
+
+            //Отправляем фото либо сообщение
+            if (isset($category[0]['image'])) {
+                sendPhoto($this->bot, $chat_id, $category[0]['image'], $answer, $keyboard);
+            }else{
+                sendMessage($this->bot, $chat_id, $answer, $keyboard);
+            }
         }
 
         //Показ статистики простмотров

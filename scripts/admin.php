@@ -21,6 +21,7 @@
                     'inline_keyboard' => [
                         array(array('text'=> $this->lang['add_film'],'callback_data' => "view.add_film_text")),
                         array(array('text'=> $this->lang['del_film'],'callback_data' => "view.categories")),
+                        array(array('text'=> $this->lang['category_images'],'callback_data' => "view.category_images")),
                     ],
                     'clean_cache' => true,
                     'prev_menu' => false,
@@ -83,6 +84,37 @@
                     'delete_btn' => "films" // Создает кнопку удаления которая удалит из таблицы films (можно добавить в любое меню)
                 ],
 
+                //При нажатии на кнопку "О компании"
+                "about_company" => [
+                    'name' => "О компании",
+                    'answer' => $this->lang['about_company_text'],
+                    'prev_menu' => false,
+                ],
+
+                //При нажатии на кнопку "Статистика"
+                "statistics" => [
+                    'name' => "Статистика",
+                    'view_func' => 'showStats', // Функция вывода статистики
+                    'prev_menu' => false,
+                ],
+
+                //При нажатии на кнопку "Картинки к категориям"
+                "category_images" => [
+                    'name' => "Картинки к категориям",
+                    'answer' => $this->lang['category_images_choose'],
+                    'keyboard_func' => "getCategories",
+                    'callback_menu' => "edit_category_image", // Меню после нажатия кнопки (id)
+                    'prev_menu' => "admin",
+                ],
+
+                "edit_category_image" => [
+                    'name' => "изменить картинку категории",
+                    'answer' => $this->lang['category_images_edit'],
+                    'view_func' => 'editCategory',
+                    'prev_menu' => "category_images",
+                    'message' => "addCategoryImage",
+                ],
+
             ];
         }
 
@@ -100,6 +132,13 @@
             $rpc = new Rpc();
 
             if ($call[0] == "delete" && isset($call[1])) {
+                //Удаляем фильм
+                $this->db->delete("DELETE FROM films WHERE id='".$call[1]."'");
+                //Прказываем prewMenu
+                $dialog = $this->db->select("SELECT * FROM _dialogs WHERE chat_id='".$chat_id."' ORDER BY created_at DESC LIMIT 2");
+                $rpc->prewMenu($chat_id,$dialog[1]['menu'],$msg_id);
+            }
+            if ($call[0] == "edit_category_image" && isset($call[1])) {
                 //Удаляем фильм
                 $this->db->delete("DELETE FROM films WHERE id='".$call[1]."'");
                 //Прказываем prewMenu
@@ -301,5 +340,64 @@
 
             //Отправляем ролик с кнопками
             sendVideo($this->bot,$chat_id,$film[0]['video'],$answer,$keyboard);
+        }
+
+        // Функция редактирования категорию
+        public function editCategory($id,$chat_id,$breads,$keyboard) {
+            // Получаем категорию
+            $ctgr = $this->db->select("SELECT * FROM categories WHERE id='$id'");
+
+            //Хлебные крошки и answer
+            $answer = $breads."\n\n".$this->lang['category'].": ".$ctgr[0]['name']."\n".$this->lang['category_images_edit'];
+
+            //Отправляем либо фото
+            if (isset($ctgr[0]['image'])) {
+                sendPhoto($this->bot,$chat_id,$ctgr[0]['image'],$answer,$keyboard);
+            }else{
+                sendMessage($this->bot,$chat_id,$answer,$keyboard);
+            }
+        }
+
+        //Показ статистики простмотров
+        public function showStats($data,$chat_id,$breads,$keyboard) {
+            $stats = new Stats;
+
+            $today_show_films = $stats->getStats("show_film", "today");
+            $week_show_films = $stats->getStats("show_film", "week");
+            $month_show_films = $stats->getStats("show_film", "lastmonth");
+
+            $today_acc = $stats->getAccountsStats("today");
+            $week_acc = $stats->getAccountsStats("week");
+            $month_acc = $stats->getAccountsStats("lastmonth");
+
+            $today_time = $stats->getUsedTime("today");
+            $week_time = $stats->getUsedTime("week");
+            $month_time = $stats->getUsedTime("lastmonth");
+
+            $answer = sprintf($this->lang['statistics_text'],$today_show_films,$week_show_films,$month_show_films,$today_acc,$week_acc,$month_acc,$today_time,$week_time,$month_time);
+
+            $stats = new Stats;
+            $stats->addStat($chat_id,"show_stats");
+
+            sendMessage($this->bot,$chat_id,$answer,$keyboard);
+        }
+
+        // Добавляем фото к фильму
+        public function addCategoryImage($data) {
+            if (isset($data['dialog']['data'])) {
+                $ctgr_id = $data['dialog']['data'];
+                if (isset($data['photo'])) {
+                    // Получаем id файла на серверах tg и меняем в фильме
+                    $orig_file = $data['photo'][array_key_last($data['photo'])]->getFileId();
+                    $this->db->update("UPDATE categories SET image='".$orig_file."' WHERE id='$ctgr_id'");
+                    showRpc("edit_category_image", $data['chat_id'], false, false, $ctgr_id);
+                }else{
+                    // Ошибка если что-то не так
+                    $kb = [];
+                    array_push($kb, array(array('text'=> $this->lang['back'],'callback_data' => "prew.edit_category_image"),array('text'=> $this->lang['cancel'],'callback_data' => "view.admin")));
+                    $keyboard = new \TelegramBot\Api\Types\Inline\InlineKeyboardMarkup($kb);
+                    sendMessage($this->bot, $data['chat_id'], $this->lang['error_need_photo_ctgr'], $keyboard);
+                }
+            }
         }
     }
