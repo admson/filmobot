@@ -6,6 +6,12 @@
     define('DB_PASSWORD',''); // Пароль БД
     define('DB_USERNAME',''); // Пользователь БД
 
+    //Настройки подключения к бд с таблицой stats
+    define('STATS_DB_SERVER','localhost'); // Сервер БД
+    define('STATS_DB_NAME',''); // Название БД
+    define('STATS_DB_PASSWORD',''); // Пароль БД
+    define('STATS_DB_USERNAME',''); // Пользователь БД
+
     // Настройки бота
     define('BOT_TOKEN',''); // API Token бота
     define('LANG','ru'); // Стандартный язык
@@ -16,14 +22,11 @@
 
     //Настройки чатов
     // * Бот должен быть добавлен в канал как администратор
-    define('PRIVATECHATID', - ); // ID/Link приватного канала для публикаций. (false/chat_id)
-    define('PUBLICCHATID', "@"); // ID/Link публичного канала для публикаций. (false/chat_id/chatlink(@demochannel))
+    define('PRIVATECHATID',  ); // ID/Link приватного канала для публикаций. (false/chat_id)
+    define('PUBLICCHATID', ""); // ID/Link публичного канала для публикаций. (false/chat_id/chatlink(@demochannel))
 
     //Возможные сюжеты
     $scripts = ['admin','main'];
-
-    //Подключаем библиотеки
-    $libs = ['filmobot','stats'];
 
     // Chat_id => "Role"
     $employers = [

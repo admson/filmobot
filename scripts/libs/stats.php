@@ -3,6 +3,9 @@
 
     class Stats extends scriptController{
 
+        public $db_stats;
+        public $dbcon_stats;
+
         //Скриптовые менюшки по которым просчитываем примерное время человека в боте
         //Среднее время проведенное в меню(диалоге, скрипте) в секундах
         public $action_times = [
@@ -15,11 +18,14 @@
         public function __construct()
         {
             parent::__construct();
+            //Подключение к БД статистики
+            $this->db_stats = new DB();
+            $this->dbcon_stats = $this->db_stats->openNew(STATS_DB_SERVER, STATS_DB_USERNAME, STATS_DB_PASSWORD, STATS_DB_NAME);
         }
 
         //  Добавляем статистику в Базу данных
         public function addStat($chat_id,$action){
-            $this->db->insert("INSERT INTO stats(chat_id,action) VALUES('$chat_id','$action')");
+            $this->db_stats->insert("INSERT INTO stats(chat_id,action) VALUES('$chat_id','$action')");
         }
 
         public function getFilterByPeriod($period) {
@@ -40,7 +46,7 @@
         public function getStats($action,$period = "today") {
             $filter = self::getFilterByPeriod($period);
 
-            $data = $this->db->select("SELECT * FROM stats WHERE action='$action' AND $filter");
+            $data = $this->db_stats->select("SELECT * FROM stats WHERE action='$action' AND $filter");
             return count($data); // Возвращаем количество записей в статистике
         }
 
@@ -58,7 +64,7 @@
 
             $sec_time = 0;
 
-            $data = $this->db->select("SELECT * FROM stats WHERE $filter");
+            $data = $this->db_stats->select("SELECT * FROM stats WHERE $filter");
             foreach ($data as $value) {
                 if (isset($this->action_times[$value['action']])) $sec_time+= $this->action_times[$value['action']];
             }
