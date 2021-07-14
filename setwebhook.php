@@ -8,7 +8,7 @@
 
     //Установка WebHook
     try {
-        $webhook = $bot->setWebHook(DOMAIN."/bot.php",CERTIFICATE);
+        $webhook = $bot->setWebHook(DOMAIN."/bot.php",new \CURLFile(realpath(CERTIFICATE)));
         echo $webhook;
     } catch (TelegramBot\Api\HttpException $e) {
         // error
