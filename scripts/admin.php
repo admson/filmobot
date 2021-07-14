@@ -135,15 +135,15 @@
                 //Удаляем фильм
                 $this->db->delete("DELETE FROM films WHERE id='".$call[1]."'");
                 //Прказываем prewMenu
-                $dialog = $this->db->select("SELECT * FROM _dialogs WHERE chat_id='".$chat_id."' ORDER BY created_at DESC LIMIT 2");
-                $rpc->prewMenu($chat_id,$dialog[1]['menu'],$msg_id);
+                $prewmenu = $rpc->getPrewMenu($chat_id);
+                $rpc->prewMenu($chat_id,$prewmenu,$msg_id);
             }
             if ($call[0] == "edit_category_image" && isset($call[1])) {
                 //Удаляем фильм
                 $this->db->delete("DELETE FROM films WHERE id='".$call[1]."'");
-                //Прказываем prewMenu
-                $dialog = $this->db->select("SELECT * FROM _dialogs WHERE chat_id='".$chat_id."' ORDER BY created_at DESC LIMIT 2");
-                $rpc->prewMenu($chat_id,$dialog[1]['menu'],$msg_id);
+                //Прказываем предыдущее меню
+                $prewmenu = $rpc->getPrewMenu($chat_id);
+                $rpc->prewMenu($chat_id,$prewmenu,$msg_id);
             }
         }
 
@@ -362,19 +362,43 @@
         public function showStats($data,$chat_id,$breads,$keyboard) {
             $stats = new Stats;
 
+            // Получаем все данные которые нам надо
             $today_show_films = $stats->getStats("show_film", "today");
             $week_show_films = $stats->getStats("show_film", "week");
-            $month_show_films = $stats->getStats("show_film", "lastmonth");
+            $month_show_films = $stats->getStats("show_film", "curmonth");
+            $yesterday_show_films = $stats->getStats("show_film", "yesterday");
+            $lastweek_show_films = $stats->getStats("show_film", "lastweek");
+            $lastmonth_show_films = $stats->getStats("show_film", "lastmonth");
 
+            $today_show_percent = $stats->calcPercent($today_show_films,$yesterday_show_films); // Подсчет процентов (сегодня и вчера)
+            $week_show_percent = $stats->calcPercent($week_show_films,$lastweek_show_films);
+            $month_show_percent = $stats->calcPercent($month_show_films,$lastmonth_show_films);
+
+            // По аккаунтам
             $today_acc = $stats->getAccountsStats("today");
             $week_acc = $stats->getAccountsStats("week");
-            $month_acc = $stats->getAccountsStats("lastmonth");
+            $month_acc = $stats->getAccountsStats("curmonth");
+            $y_acc = $stats->getAccountsStats("yesterday");
+            $lw_acc = $stats->getAccountsStats("lastweek");
+            $lm_acc = $stats->getAccountsStats("lastmonth");
 
+            $today_acc_percent = $stats->calcPercent($today_acc,$y_acc); // Подсчет процентов (сегодня и вчера)
+            $week_acc_percent = $stats->calcPercent($lw_acc,$week_acc);
+            $month_acc_percent = $stats->calcPercent($lm_acc,$month_acc);
+
+            // Затраченное время
             $today_time = $stats->getUsedTime("today");
             $week_time = $stats->getUsedTime("week");
-            $month_time = $stats->getUsedTime("lastmonth");
+            $month_time = $stats->getUsedTime("curmonth");
+            $y_time = $stats->getUsedTime("yesterday");
+            $lw_time = $stats->getUsedTime("lastweek");
+            $lm_time = $stats->getUsedTime("lastmonth");
 
-            $answer = sprintf($this->lang['statistics_text'],$today_show_films,$week_show_films,$month_show_films,$today_acc,$week_acc,$month_acc,$today_time,$week_time,$month_time);
+            $today_time_percent = $stats->calcPercent($today_time,$y_time); // Подсчет процентов (сегодня и вчера)
+            $week_time_percent = $stats->calcPercent($week_time,$lw_time);
+            $month_time_percent = $stats->calcPercent($month_time,$lm_time);
+
+            $answer = sprintf($this->lang['statistics_text'],$today_show_films,formatPercent($today_show_percent),$week_show_films,formatPercent($week_show_percent),$month_show_films,formatPercent($month_show_percent),$today_acc,formatPercent($today_acc_percent),$week_acc,formatPercent($week_acc_percent),$month_acc,formatPercent($month_acc_percent),$today_time,formatPercent($today_time_percent),$week_time,formatPercent($week_time_percent),$month_time,formatPercent($month_time_percent));
 
             $stats = new Stats;
             $stats->addStat($chat_id,"show_stats");

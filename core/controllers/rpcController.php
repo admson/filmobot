@@ -199,4 +199,14 @@
             $this->show($menu,$chat_id,false, $msg_id,$data2,$page);
         }
 
+        // Функция получения предыдущего меню
+        public function getPrewMenu($chat_id) {
+            $dialog = $this->db->select("SELECT * FROM _dialogs WHERE chat_id='".$chat_id."' ORDER BY created_at DESC LIMIT 2");
+            if (isset($dialog[1]['menu'])) {
+                return $dialog[1]['menu'];
+            }else{
+                return false;
+            }
+        }
+
     }

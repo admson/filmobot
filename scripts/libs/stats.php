@@ -23,6 +23,15 @@
             $this->dbcon_stats = $this->db_stats->openNew(STATS_DB_SERVER, STATS_DB_USERNAME, STATS_DB_PASSWORD, STATS_DB_NAME);
         }
 
+        // Подсчет процентов
+        public function calcPercent($num1,$num2){
+            if ($num1 == $num2) return 0;
+            if ($num2 == 0) return 100;
+            if ($num1 == 0) return -100;
+            $percent = ($num1/$num2)*100-100;
+            return round($percent,1);
+        }
+
         //  Добавляем статистику в Базу данных
         public function addStat($chat_id,$action){
             $this->db_stats->insert("INSERT INTO stats(chat_id,action) VALUES('$chat_id','$action')");
@@ -31,12 +40,16 @@
         public function getFilterByPeriod($period) {
             if ($period == "today") { // За сегодня
                 $filter = "DATE(`created_at`) = DATE(CURDATE())";
+            }elseif ($period == "yesterday") { // За текущий месяц
+                $filter = "created_at >= (CURDATE()-1) AND created_at < CURDATE()";
             }elseif ($period == "curmonth") { // За текущий месяц
                 $filter = "date_format(created_at, '%Y%m') = date_format(now(), '%Y%m')";
             }elseif ($period == "lastmonth") { // За прошлый месяц
                 $filter = "MONTH(created_at) = MONTH(NOW()) - 1";
             }elseif ($period == "week") { // За неделю
                 $filter = "`created_at` >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+            }elseif ($period == "lastweek") { // За прошлую неделю
+                $filter = "WEEKOFYEAR(created_at)=WEEKOFYEAR(CURDATE())-1";
             }
 
             return $filter;
