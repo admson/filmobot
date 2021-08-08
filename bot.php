@@ -12,13 +12,6 @@
 
     $bot = new \TelegramBot\Api\Client(BOT_TOKEN);
 
-    //Установка WebHook
-    try {
-        $bot->setWebHook("https://".$_SERVER['HTTP_HOST']."/bot.php");
-    } catch (TelegramBot\Api\HttpException $e) {
-        // error
-    }
-
     $bot->command('start', function ($message) use ($bot, $db, $dbconnection, $lang, $employers) {
         $text = $message->getText();
         $firstname = $message->getChat()->getFirstName();
@@ -91,7 +84,7 @@
 
         //Сообщение с клавиатурой
         $main_keyboard = [];
-        array_push($main_keyboard, array(array('text'=> $lang['cancel'],'callback_data' => "view.".$role)));
+        array_push($main_keyboard, array(array('text'=> $lang['cancel'],'callback_data' => "view.".strtolower($role))));
         $keyboard = new \TelegramBot\Api\Types\Inline\InlineKeyboardMarkup($main_keyboard);
         sendMessage($bot,$chat_id,$lang['help_message'],$keyboard);
     });

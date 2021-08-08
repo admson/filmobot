@@ -105,11 +105,18 @@
                 }
 
                 // Отправляем либо редактируем сообщение
-                if (!isset($route['view_func'])) {
+                if (!isset($route['view_func']) && !isset($route['lib_func'])) {
                     self::sendMsg($chat_id, $msg_id, $answer, $keyboard);
                 }else{
-                    $role = getRole($chat_id);
-                    call_user_func(array($role,$route['view_func']),$data,$chat_id,$breads,$keyboard);
+                    if (isset($route['view_func'])) {
+                        $role = getRole($chat_id);
+                        call_user_func(array($role, $route['view_func']), $data, $chat_id, $breads, $keyboard);
+                    }
+                    if (isset($route['lib_func'])) {
+                        $lib_func = explode("::",$route['lib_func']);
+                        $func = new $lib_func[0];
+                        call_user_func(array($func, $lib_func[1]), $data, $chat_id, $breads, $keyboard);
+                    }
                 }
             }
         }
@@ -176,10 +183,6 @@
             $now_time = new DateTime('now');
             $now_time->modify("-".SESSION_TIMEOUT." minutes");
             $this->db->delete("DELETE FROM _dialogs WHERE created_at <= '".$now_time->format('Y-m-d H:i:s')."'");
-            // Удаление фильмов по таймауту
-            $now_time = new DateTime('now');
-            $now_time->modify("-".FILM_TIMEOUT." minutes");
-            $this->db->delete("DELETE FROM films WHERE created_at <= '".$now_time->format('Y-m-d H:i:s')."' AND hash IS NULL");
         }
 
         // Функция возвращения на предыдущее меню

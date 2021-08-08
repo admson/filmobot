@@ -76,7 +76,7 @@
                 if (isset($dialog[0]['data'])) $data2 = $dialog[0]['data'];
                 if (isset($this->routes[$dialog[0]['menu']]['view_func'])) $this->msg_id = false;
 //                if (isset($this->routes[$dialog[0]['menu']]['view_func'])) $this->msg_id = false;
-                dumpData($dialog[0]['menu']);
+                dumpData($data[1]);
                 $this->rpc->show($data[1],$this->chat_id,false, $this->msg_id,$data2);
             }// Обработка каллбеков для перекидывания сразу на меню ( с сохраненим параметров id)
             if ($data[0] == "catalog_page" && isset($data[1])) {

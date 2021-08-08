@@ -94,7 +94,7 @@
                 //При нажатии на кнопку "Статистика"
                 "statistics" => [
                     'name' => "Статистика",
-                    'view_func' => 'showStats', // Функция вывода статистики
+                    'lib_func' => 'stats::showStats', // Функция вывода статистики из scripts
                     'prev_menu' => false,
                 ],
 
@@ -116,6 +116,11 @@
                 ],
 
             ];
+
+            // Удаление фильмов по таймауту
+            $now_time = new DateTime('now');
+            $now_time->modify("-".FILM_TIMEOUT." minutes");
+            $this->db->delete("DELETE FROM films WHERE created_at <= '".$now_time->format('Y-m-d H:i:s')."' AND hash IS NULL");
         }
 
         // Обработка хешей
@@ -356,54 +361,6 @@
             }else{
                 sendMessage($this->bot,$chat_id,$answer,$keyboard);
             }
-        }
-
-        //Показ статистики простмотров
-        public function showStats($data,$chat_id,$breads,$keyboard) {
-            $stats = new Stats;
-
-            // Получаем все данные которые нам надо
-            $today_show_films = $stats->getStats("show_film", "today");
-            $week_show_films = $stats->getStats("show_film", "week");
-            $month_show_films = $stats->getStats("show_film", "curmonth");
-            $yesterday_show_films = $stats->getStats("show_film", "yesterday");
-            $lastweek_show_films = $stats->getStats("show_film", "lastweek");
-            $lastmonth_show_films = $stats->getStats("show_film", "lastmonth");
-
-            $today_show_percent = $stats->calcPercent($today_show_films,$yesterday_show_films); // Подсчет процентов (сегодня и вчера)
-            $week_show_percent = $stats->calcPercent($week_show_films,$lastweek_show_films);
-            $month_show_percent = $stats->calcPercent($month_show_films,$lastmonth_show_films);
-
-            // По аккаунтам
-            $today_acc = $stats->getAccountsStats("today");
-            $week_acc = $stats->getAccountsStats("week");
-            $month_acc = $stats->getAccountsStats("curmonth");
-            $y_acc = $stats->getAccountsStats("yesterday");
-            $lw_acc = $stats->getAccountsStats("lastweek");
-            $lm_acc = $stats->getAccountsStats("lastmonth");
-
-            $today_acc_percent = $stats->calcPercent($today_acc,$y_acc); // Подсчет процентов (сегодня и вчера)
-            $week_acc_percent = $stats->calcPercent($lw_acc,$week_acc);
-            $month_acc_percent = $stats->calcPercent($lm_acc,$month_acc);
-
-            // Затраченное время
-            $today_time = $stats->getUsedTime("today");
-            $week_time = $stats->getUsedTime("week");
-            $month_time = $stats->getUsedTime("curmonth");
-            $y_time = $stats->getUsedTime("yesterday");
-            $lw_time = $stats->getUsedTime("lastweek");
-            $lm_time = $stats->getUsedTime("lastmonth");
-
-            $today_time_percent = $stats->calcPercent($today_time,$y_time); // Подсчет процентов (сегодня и вчера)
-            $week_time_percent = $stats->calcPercent($week_time,$lw_time);
-            $month_time_percent = $stats->calcPercent($month_time,$lm_time);
-
-            $answer = sprintf($this->lang['statistics_text'],$today_show_films,formatPercent($today_show_percent),$week_show_films,formatPercent($week_show_percent),$month_show_films,formatPercent($month_show_percent),$today_acc,formatPercent($today_acc_percent),$week_acc,formatPercent($week_acc_percent),$month_acc,formatPercent($month_acc_percent),$today_time,formatPercent($today_time_percent),$week_time,formatPercent($week_time_percent),$month_time,formatPercent($month_time_percent));
-
-            $stats = new Stats;
-            $stats->addStat($chat_id,"show_stats");
-
-            sendMessage($this->bot,$chat_id,$answer,$keyboard);
         }
 
         // Добавляем фото к фильму

@@ -44,7 +44,7 @@
                 //При нажатии на кнопку "Статистика"
                 "statistics" => [
                     'name' => "Статистика",
-                    'view_func' => 'showStats', // Функция вывода статистики
+                    'lib_func' => 'stats::showStats', // Функция вывода статистики flie::func
                     'prev_menu' => false,
                 ],
             ];
